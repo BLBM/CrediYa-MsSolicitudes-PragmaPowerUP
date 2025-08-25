@@ -13,7 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
+import lombok.extern.slf4j.Slf4j;
 
+
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/solicitud")
@@ -23,6 +26,7 @@ public class LoanAplicationController {
 
     @PostMapping
     public Mono<LoanAplicationResponse> create(@RequestBody LoanAplicationRequest loanAplicationRequest) {
+        log.info("Iniciando loanAplicationRequest: {}", loanAplicationRequest);
         Solicitud solicitud = Solicitud.builder()
                         .monto(loanAplicationRequest.monto())
                         .plazo(loanAplicationRequest.plazo())
