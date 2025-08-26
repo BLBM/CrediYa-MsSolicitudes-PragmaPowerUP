@@ -15,6 +15,8 @@ public interface LoanApplicationMapper {
     LoanApplicationMapper Instance = Mappers.getMapper(LoanApplicationMapper.class);
 
     @Mapping(target = "loanApplicationId", ignore = true)
+    @Mapping(target = "loanType", expression = "java(new LoanType(loanApplicationRequest.loanTypeId()))")
+    @Mapping(target = "status", expression = "java(new Status(1))")
     LoanApplication toDomain(LoanApplicationRequest loanApplicationRequest);
 
     @Mapping(source = "status.description", target = "statusDescription")

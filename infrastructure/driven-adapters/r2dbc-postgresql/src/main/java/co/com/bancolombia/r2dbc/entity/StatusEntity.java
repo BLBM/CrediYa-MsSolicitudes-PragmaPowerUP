@@ -16,7 +16,7 @@ import org.springframework.data.relational.core.mapping.Table;
 public class StatusEntity {
 
     @Id
-    @Column("id_estado")
+    @Column("status_id")
     private Integer statusId;
     private String name;
     private String description;

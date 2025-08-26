@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
 
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
+    public ResponseEntity<Map<String, Object>> handleAllExceptions(Exception ex) {
         log.error("Error interno no controlado",ex);
 
         Map<String, Object> body = new HashMap<>();
@@ -44,14 +44,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 
-    @ExceptionHandler()
-    public ResponseEntity<Map<String, Object>> handleDatabase(Exception ex) {
-        log.error("Error en base de datos", ex);
-        return ResponseEntity.status(500).body(Map.of(
-                "error", "Error en el servicio de base de datos. Intente más tarde.",
-                "status", 500,
-                "timestamp", LocalDateTime.now()
-        ));
-    }
+
 
 }

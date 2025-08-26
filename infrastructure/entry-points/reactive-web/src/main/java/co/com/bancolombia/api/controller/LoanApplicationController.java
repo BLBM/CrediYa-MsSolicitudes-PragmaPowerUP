@@ -6,7 +6,6 @@ import co.com.bancolombia.api.dto.LoanApplicationResponse;
 
 import co.com.bancolombia.api.mapper.LoanApplicationMapper;
 import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,10 +25,10 @@ public class LoanApplicationController {
 
     @PostMapping
     public Mono<LoanApplicationResponse> createLoanApplication(@RequestBody LoanApplicationRequest loanApplicationRequest){
-        log.info("ok");
+        log.info("ok {}",loanApplicationRequest);
 
         return createdLoanApplicationUseCase.execute(LoanApplicationMapper.Instance.toDomain(loanApplicationRequest))
-                .doOnSuccess(loanApp -> log.info("ok"))
+                .doOnSuccess(loanApp -> log.info("ok {}", loanApp))
                 .doOnError(e-> log.error("not ok"))
                 .map(LoanApplicationMapper.Instance::toResponse);
     }

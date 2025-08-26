@@ -27,6 +27,17 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
         this.txOperator = txOperator;
     }
 
+    @Override
+    protected LoanApplicationEntity toData(LoanApplication loanApplication) {
+        return LoanApplicationEntity.builder()
+                .solicitudId(loanApplication.getLoanApplicationId())
+                .amount(loanApplication.getAmount())
+                .timeLimit(loanApplication.getTimeLimit())
+                .email(loanApplication.getEmail())
+                .statusId(loanApplication.getStatus().getStatusId()) // solo el ID
+                .loanTypeId(loanApplication.getLoanType().getLoanTypeId()) // solo el ID
+                .build();
+    }
 
     @Override
     public Mono<LoanApplication> save(LoanApplication loanApplication) {

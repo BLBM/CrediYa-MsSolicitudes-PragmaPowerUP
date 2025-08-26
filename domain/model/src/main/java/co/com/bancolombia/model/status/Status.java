@@ -13,4 +13,8 @@ public class Status {
     private Integer statusId;
     private String name;
     private String description;
+
+    public Status(Integer statusId) {
+        this.statusId = statusId;
+    }
 }
