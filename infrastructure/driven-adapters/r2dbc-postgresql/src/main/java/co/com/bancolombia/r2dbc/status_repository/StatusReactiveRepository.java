@@ -1,4 +1,4 @@
-package co.com.bancolombia.r2dbc.statusRepository;
+package co.com.bancolombia.r2dbc.status_repository;
 
 import co.com.bancolombia.r2dbc.entity.StatusEntity;
 import org.springframework.data.repository.query.ReactiveQueryByExampleExecutor;

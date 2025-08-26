@@ -1,7 +1,7 @@
-package co.com.bancolombia.r2dbc.loanTypeRepository;
+package co.com.bancolombia.r2dbc.loan_type_repository;
 
-import co.com.bancolombia.model.tipoPrestamo.TipoPrestamo;
-import co.com.bancolombia.model.tipoPrestamo.gateways.TipoPrestamoRepository;
+import co.com.bancolombia.model.loan_type.TipoPrestamo;
+import co.com.bancolombia.model.loan_type.gateways.TipoPrestamoRepository;
 import co.com.bancolombia.r2dbc.entity.LoanTypeEntity;
 import co.com.bancolombia.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;

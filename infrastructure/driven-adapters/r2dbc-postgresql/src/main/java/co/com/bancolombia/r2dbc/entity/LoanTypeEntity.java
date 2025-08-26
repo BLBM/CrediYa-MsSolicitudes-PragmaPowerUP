@@ -12,19 +12,19 @@ import org.springframework.data.relational.core.mapping.Table;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("tipo_prestamo")
+@Table("loan_type")
 public class LoanTypeEntity {
 
     @Id
-    @Column("id_tipo_prestamo")
-    private Integer idTipoPrestamo;
-    private String nombre;
-    @Column("monto_minimo")
-    private Double montoMinimo;
-    @Column("monto_maximo")
-    private Double montoMaximo;
-    @Column("tasa_interes")
-    private Double tasaInteres;
-    @Column("validacion_automatica")
-    private Boolean validacionAutomatica;
+    @Column("loan_type_id")
+    private Integer loanTypeId;
+    private String name;
+    @Column("min_amount")
+    private Double minAmount;
+    @Column("max_amount")
+    private Double maxAmount;
+    @Column("interest_rate")
+    private Double interestRate;
+    @Column("automatic_validation")
+    private Boolean automaticValidation;
 }

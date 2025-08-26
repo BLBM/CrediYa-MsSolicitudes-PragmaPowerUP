@@ -1,7 +1,7 @@
-package co.com.bancolombia.r2dbc.statusRepository;
+package co.com.bancolombia.r2dbc.status_repository;
 
-import co.com.bancolombia.model.estado.Estado;
-import co.com.bancolombia.model.estado.gateways.EstadoRepository;
+import co.com.bancolombia.model.status.Estado;
+import co.com.bancolombia.model.status.gateways.EstadoRepository;
 import co.com.bancolombia.r2dbc.entity.StatusEntity;
 import co.com.bancolombia.r2dbc.helper.ReactiveAdapterOperations;
 import org.reactivecommons.utils.ObjectMapper;

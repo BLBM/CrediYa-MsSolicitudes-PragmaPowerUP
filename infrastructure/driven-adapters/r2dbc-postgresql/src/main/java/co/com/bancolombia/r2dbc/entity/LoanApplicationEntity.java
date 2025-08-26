@@ -11,22 +11,23 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
-@Table("solicitud")
-public class LoanAplicationEntity {
+@Table("loan_application")
+public class LoanApplicationEntity {
 
     @Id
-    @Column("id_solicitud")
-    private Integer idSolicitud;
+    @Column("loan_application_id")
+    private Integer solicitudId;
 
-    private Double monto;
+    private Double amount;
 
-    private Date plazo;
+    @Column("time_limit")
+    private Date timeLimit;
 
     private String email;
 
-    @Column("id_estado")
-    private Integer estado;
+    @Column("status_id")
+    private Integer statusId;
 
-    @Column("id_tipo_prestamo")
-    private Integer tipoPrestamo;
+    @Column("loan_type_id")
+    private Integer loanTypeId;
 }
