@@ -2,6 +2,7 @@ package co.com.bancolombia.usecase.guardarsolicitud;
 
 import co.com.bancolombia.model.estado.Estado;
 import co.com.bancolombia.model.estado.gateways.EstadoRepository;
+import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.solicitud.Solicitud;
 import co.com.bancolombia.model.solicitud.gateways.SolicitudRepository;
 import co.com.bancolombia.model.tipoPrestamo.TipoPrestamo;
@@ -18,9 +19,14 @@ public class GuardarSolicitudUseCase {
 
 
     public Mono<Solicitud> execute(Solicitud solicitud){
-        return Mono.zip(
-                tipoPrestamoRepository.findById(solicitud.getTipoPrestamo().getIdTipoPrestamo()),
-                estadoRepository.findById(solicitud.getEstado().getIdEstado())
+
+        Mono<TipoPrestamo> tipoPrestamoMono = tipoPrestamoRepository.findById(solicitud.getTipoPrestamo().getIdTipoPrestamo())
+                .switchIfEmpty(Mono.error(new DomainException("el tipo prestamo no existe")));
+
+        Mono<Estado> estadoMono = estadoRepository.findById(solicitud.getEstado().getIdEstado())
+                .switchIfEmpty(Mono.error(new IllegalStateException("No se encontró el estado inicial en BD. Verifique configuración.")));
+
+        return Mono.zip(tipoPrestamoMono,estadoMono
         ).flatMap(tipoPrestamoEstado -> {
             TipoPrestamo tipoPrestamoCompleto = tipoPrestamoEstado.getT1();
             Estado estadoCompleto = tipoPrestamoEstado.getT2();
