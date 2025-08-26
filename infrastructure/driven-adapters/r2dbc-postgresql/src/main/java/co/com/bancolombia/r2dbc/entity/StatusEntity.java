@@ -12,12 +12,12 @@ import org.springframework.data.relational.core.mapping.Table;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table("estado")
+@Table("status")
 public class StatusEntity {
 
     @Id
-    @Column("id_estado")
-    private Integer idEstado;
-    private String nombre;
-    private String descripcion;
+    @Column("status_id")
+    private Integer statusId;
+    private String name;
+    private String description;
 }
