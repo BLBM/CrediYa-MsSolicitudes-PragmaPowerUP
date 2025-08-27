@@ -12,7 +12,7 @@ import org.mapstruct.factory.Mappers;
 @Mapper
 public interface LoanApplicationMapper {
 
-    LoanApplicationMapper Instance = Mappers.getMapper(LoanApplicationMapper.class);
+    LoanApplicationMapper INSTANCE = Mappers.getMapper(LoanApplicationMapper.class);
 
     @Mapping(target = "loanApplicationId", ignore = true)
     @Mapping(target = "loanType", expression = "java(new LoanType(loanApplicationRequest.loanTypeId()))")

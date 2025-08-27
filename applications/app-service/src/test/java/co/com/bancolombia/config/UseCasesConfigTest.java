@@ -1,6 +1,14 @@
 package co.com.bancolombia.config;
 
+import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.bancolombia.model.loan_type.gateways.LoanTypeRepository;
+import co.com.bancolombia.model.status.gateways.StatusRepository;
+import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
+import co.com.bancolombia.usecase.find_loan_type_use_case.FindLoanTypeUseCase;
+import co.com.bancolombia.usecase.find_status_use_case.FindStatusUseCase;
+import co.com.bancolombia.usecase.loan_application_validator_use_case.LoanApplicationValidator;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -34,6 +42,27 @@ class UseCasesConfigTest {
         public MyUseCase myUseCase() {
             return new MyUseCase();
         }
+
+        @Bean
+        public StatusRepository statusRepository() {return  Mockito.mock(StatusRepository.class);}
+
+        @Bean
+        public LoanTypeRepository loanTypeRepository() {return  Mockito.mock(LoanTypeRepository.class);}
+
+        @Bean
+        public LoanApplicationRepository loanApplicationRepository() {return  Mockito.mock(LoanApplicationRepository.class);}
+
+        @Bean
+        public CreatedLoanApplicationUseCase createdLoanApplicationUseCase() {return  Mockito.mock(CreatedLoanApplicationUseCase.class);}
+
+        @Bean
+        public FindLoanTypeUseCase findLoanTypeUseCase(){return  Mockito.mock(FindLoanTypeUseCase.class);}
+
+        @Bean
+        public FindStatusUseCase findStatusUseCase(){return  Mockito.mock(FindStatusUseCase.class);}
+
+        @Bean
+        public LoanApplicationValidator findLoanApplicationValidator(){return  Mockito.mock(LoanApplicationValidator.class);}
     }
 
     static class MyUseCase {
