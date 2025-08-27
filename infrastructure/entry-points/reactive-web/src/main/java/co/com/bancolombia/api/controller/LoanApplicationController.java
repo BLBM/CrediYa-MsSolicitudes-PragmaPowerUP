@@ -31,9 +31,9 @@ public class LoanApplicationController {
     public Mono<LoanApplicationResponse> createLoanApplication(@RequestBody LoanApplicationRequest loanApplicationRequest){
         log.info(LogConstants.REQUEST_RECEIVED,loanApplicationRequest);
 
-        return createdLoanApplicationUseCase.execute(LoanApplicationMapper.Instance.toDomain(loanApplicationRequest))
+        return createdLoanApplicationUseCase.execute(LoanApplicationMapper.INSTANCE.toDomain(loanApplicationRequest))
                 .doOnSuccess(loanApp -> log.info(LogConstants.SUCCESSFUL_APPLICATION, loanApp))
                 .doOnError(e-> log.error(LogConstants.ERROR_PROCESS))
-                .map(LoanApplicationMapper.Instance::toResponse);
+                .map(LoanApplicationMapper.INSTANCE::toResponse);
     }
 }
