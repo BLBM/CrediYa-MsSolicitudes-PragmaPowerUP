@@ -27,4 +27,6 @@ public class LoanTypeEntity {
     private Double interestRate;
     @Column("automatic_validation")
     private Boolean automaticValidation;
+
+
 }

@@ -1,9 +1,10 @@
 package co.com.bancolombia.config;
 
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
-import co.com.bancolombia.model.loan_type.gateways.LoanTypeRepository;
-import co.com.bancolombia.model.status.gateways.StatusRepository;
 import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
+import co.com.bancolombia.usecase.find_loan_type_use_case.FindLoanTypeUseCase;
+import co.com.bancolombia.usecase.find_status_use_case.FindStatusUseCase;
+import co.com.bancolombia.usecase.loan_application_validator_use_case.LoanApplicationValidator;
 import org.springframework.context.annotation.*;
 
 @Configuration
@@ -18,13 +19,23 @@ public class UseCasesConfig {
     @Primary
     public CreatedLoanApplicationUseCase createLoanApplicationUseCase(
             LoanApplicationRepository loanApplicationRepository,
-            LoanTypeRepository loanTypeRepository,
-            StatusRepository statusRepository
+            FindStatusUseCase findStatusUseCase,
+            FindLoanTypeUseCase findLoanTypeUseCase,
+            LoanApplicationValidator loanApplicationValidator
+
     ) {
         return new CreatedLoanApplicationUseCase(
                 loanApplicationRepository,
-                loanTypeRepository,
-                statusRepository
+                findLoanTypeUseCase,
+                findStatusUseCase,
+                loanApplicationValidator
         );
     }
+
+    @Bean
+    public LoanApplicationValidator loanApplicationValidator() {
+        return new LoanApplicationValidator();
+    }
+
+
 }

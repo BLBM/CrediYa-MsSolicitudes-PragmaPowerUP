@@ -1,6 +1,7 @@
 package co.com.bancolombia.r2dbc.loan_application_repository;
 
 
+import co.com.bancolombia.logconstants.LogConstants;
 import co.com.bancolombia.model.loan_application.LoanApplication;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.r2dbc.entity.LoanApplicationEntity;
@@ -33,6 +34,7 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
                 .solicitudId(loanApplication.getLoanApplicationId())
                 .amount(loanApplication.getAmount())
                 .timeLimit(loanApplication.getTimeLimit())
+                .documentId(loanApplication.getDocumentId())
                 .email(loanApplication.getEmail())
                 .statusId(loanApplication.getStatus().getStatusId()) // solo el ID
                 .loanTypeId(loanApplication.getLoanType().getLoanTypeId()) // solo el ID
@@ -41,11 +43,12 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
 
     @Override
     public Mono<LoanApplication> save(LoanApplication loanApplication) {
+        log.debug(LogConstants.START_PROCESS);
         return repository.save(toData(loanApplication))
                 .map(this::toEntity)
                 .as(txOperator::transactional)
-                .doOnSuccess(saved -> log.info("Solicitud saved: {}", saved))
-                .doOnError(e -> log.error("Error guardando usuario: {}", loanApplication));
+                .doOnSuccess(saved -> log.info(LogConstants.SUCCESSFUL_OPERATION, saved))
+                .doOnError(e -> log.error(LogConstants.ERROR_OPERATION, loanApplication));
     }
 
     @Override

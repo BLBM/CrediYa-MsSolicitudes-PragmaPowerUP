@@ -17,6 +17,7 @@ public class LoanApplication {
     private Double amount;
     private Date timeLimit;
     private String email;
+    private String documentId;
     private Status status;
     private LoanType loanType;
 }

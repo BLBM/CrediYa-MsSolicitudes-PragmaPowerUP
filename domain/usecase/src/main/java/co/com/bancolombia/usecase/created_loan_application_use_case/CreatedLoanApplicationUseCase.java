@@ -1,12 +1,12 @@
 package co.com.bancolombia.usecase.created_loan_application_use_case;
 
 import co.com.bancolombia.model.loan_application.LoanApplication;
-import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.loan_type.LoanType;
-import co.com.bancolombia.model.loan_type.gateways.LoanTypeRepository;
 import co.com.bancolombia.model.status.Status;
-import co.com.bancolombia.model.status.gateways.StatusRepository;
+import co.com.bancolombia.usecase.find_loan_type_use_case.FindLoanTypeUseCase;
+import co.com.bancolombia.usecase.find_status_use_case.FindStatusUseCase;
+import co.com.bancolombia.usecase.loan_application_validator_use_case.LoanApplicationValidator;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -14,30 +14,30 @@ import reactor.core.publisher.Mono;
 public class CreatedLoanApplicationUseCase {
 
     private final LoanApplicationRepository loanApplicationRepository;
-    private final LoanTypeRepository loanTypeRepository;
-    private final StatusRepository statusRepository;
+    private final FindLoanTypeUseCase findLoanTypeUseCase;
+    private final FindStatusUseCase findStatusUseCase;
+    private final LoanApplicationValidator  loanApplicationValidator;
 
 
     public Mono<LoanApplication> execute(LoanApplication loanApplication){
 
-        Mono<LoanType> loanTypeMono = loanTypeRepository.findById(loanApplication.getLoanType().getLoanTypeId())
-                .switchIfEmpty(Mono.error(new DomainException("el tipo prestamo no existe")));
+        loanApplicationValidator.validateLoanApplication(loanApplication);
 
-        Mono<Status> statusMono = statusRepository.findById(loanApplication.getStatus().getStatusId())
-                .switchIfEmpty(Mono.error(new IllegalStateException("No se encontró el estado inicial en BD. Verifique configuración.")));
+        Mono<LoanType> loanTypeMono = findLoanTypeUseCase.findLoanTypeById(loanApplication.getLoanType().getLoanTypeId());
+        Mono<Status> statusMono =findStatusUseCase.findStatusById(loanApplication.getStatus().getStatusId());
 
         return Mono.zip(loanTypeMono,statusMono
         ).flatMap(loanTypeStatusTuple -> {
-            LoanType loanTypeTuple = loanTypeStatusTuple.getT1();
-            Status statusTuple = loanTypeStatusTuple.getT2();
+            LoanType loanType = loanTypeStatusTuple.getT1();
+            Status status = loanTypeStatusTuple.getT2();
 
-            loanApplication.setLoanType(loanTypeTuple);
-            loanApplication.setStatus(statusTuple);
+            loanApplication.setLoanType(loanType);
+            loanApplication.setStatus(status);
 
             return loanApplicationRepository.save(loanApplication)
                     .map(loanApplicationSaved -> {
-                        loanApplicationSaved.setLoanType(loanTypeTuple);
-                        loanApplicationSaved.setStatus(statusTuple);
+                        loanApplicationSaved.setLoanType(loanType);
+                        loanApplicationSaved.setStatus(status);
                         return loanApplicationSaved;
                     });
         });

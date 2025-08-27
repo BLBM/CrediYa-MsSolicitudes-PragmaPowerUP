@@ -23,6 +23,9 @@ public class LoanApplicationEntity {
     @Column("time_limit")
     private Date timeLimit;
 
+    @Column("document_id")
+    private String documentId;
+
     private String email;
 
     @Column("status_id")
@@ -30,4 +33,6 @@ public class LoanApplicationEntity {
 
     @Column("loan_type_id")
     private Integer loanTypeId;
+
+
 }
