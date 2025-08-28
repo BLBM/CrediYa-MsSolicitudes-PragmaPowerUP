@@ -84,7 +84,7 @@ import static org.mockito.Mockito.*;
          StepVerifier.create(useCase.execute(loanApplication))
                  .expectErrorSatisfies(error -> {
                      assertTrue(error instanceof DomainException);
-                     assertNotNull(error.getMessage()); // al menos garantizas que tenga algo
+                     assertNotNull(error.getMessage());
                  })
                  .verify();
 
