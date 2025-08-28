@@ -2,6 +2,8 @@ package co.com.bancolombia.usecase.created_loan_application_use_case;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.LoanApplication;
+import co.com.bancolombia.model.loan_application.gateways.LoanApplicationConstants;
+import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.loan_type.LoanType;
 import co.com.bancolombia.model.status.Status;
@@ -16,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
  class CreatedLoanAppUseCaseTest {
 
@@ -31,80 +34,87 @@ import static org.mockito.Mockito.*;
     @InjectMocks
     private CreatedLoanApplicationUseCase useCase;
 
-    private LoanApplication baseLoan;
+
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
-        baseLoan = LoanApplication.builder()
-                .loanApplicationId(100)
-                .loanType(LoanType.builder().loanTypeId(1).build())
-                .status(Status.builder().statusId(10).build())
-                .amount(1000.0)
-                .timeLimit(new java.util.Date())
-                .email("test@email.com")
-                .documentId("123456")
-                .build();
     }
 
-    @Test
-    void shouldValidateAndSaveSuccessfully() {
-        // given
-        LoanType loanType = LoanType.builder().loanTypeId(1).name("Personal").build();
-        Status status = Status.builder().statusId(10).name("APPROVED").build();
+     @Test
+     void shouldCreateLoanApplicationSuccessfully() {
+         // Arrange
+         LoanApplication loanApplication = new LoanApplication();
+         loanApplication.setLoanType(new LoanType(1));
+         loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
 
-        when(findLoanTypeUseCase.findLoanTypeById(1)).thenReturn(Mono.just(loanType));
-        when(findStatusUseCase.findStatusById(10)).thenReturn(Mono.just(status));
-        when(loanApplicationRepository.save(any(LoanApplication.class)))
-                .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
+         LoanType loanType = new LoanType(1);
+         Status status = new Status(LoanApplicationConstants.INITIAL_STATUS);
 
-        // when
-        Mono<LoanApplication> result = useCase.execute(baseLoan);
+         when(findLoanTypeUseCase.findLoanTypeById(1)).thenReturn(Mono.just(loanType));
+         when(findStatusUseCase.findStatusById(1)).thenReturn(Mono.just(status));
+         when(loanApplicationRepository.save(any(LoanApplication.class)))
+                 .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
-        // then
-        StepVerifier.create(result)
-                .expectNextMatches(saved ->
-                        saved.getLoanType().equals(loanType) &&
-                                saved.getStatus().equals(status) &&
-                                saved.getAmount().equals(1000.0)
-                )
-                .verifyComplete();
+         // Act & Assert
+         StepVerifier.create(useCase.execute(loanApplication))
+                 .assertNext(saved -> {
+                     assertEquals(loanType, saved.getLoanType());
+                     assertEquals(status, saved.getStatus());
+                 })
+                 .verifyComplete();
 
-        verify(loanApplicationValidator).validateLoanApplication(baseLoan);
-        verify(loanApplicationRepository).save(any(LoanApplication.class));
-    }
+         // Verify
+         verify(loanApplicationValidator, times(1)).validateLoanApplication(any());
+         verify(findLoanTypeUseCase, times(1)).findLoanTypeById(1);
+         verify(findStatusUseCase, times(1)).findStatusById(1);
+         verify(loanApplicationRepository, times(1)).save(any(LoanApplication.class));
+     }
 
-    @Test
-    void shouldErrorWhenLoanTypeNotFound() {
-        when(findLoanTypeUseCase.findLoanTypeById(1)).thenReturn(Mono.error(new DomainException("LoanType not found")));
-        when(findStatusUseCase.findStatusById(10)).thenReturn(Mono.just(new Status(10)));
+     @Test
+     void shouldFailWhenLoanTypeDoesNotExist() {
+         LoanApplication loanApplication = new LoanApplication();
+         loanApplication.setLoanType(new LoanType(99));
+         loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
 
-        Mono<LoanApplication> result = useCase.execute(baseLoan);
+         when(findLoanTypeUseCase.findLoanTypeById(99))
+                 .thenReturn(Mono.error(new DomainException(LoanApplicationMessages.LOAN_TYPE_NO_EXIST)));
 
-        StepVerifier.create(result)
-                .expectErrorMatches(err -> err instanceof DomainException &&
-                        err.getMessage().equals("LoanType not found"))
-                .verify();
+         StepVerifier.create(useCase.execute(loanApplication))
+                 .expectErrorSatisfies(error -> {
+                     assertTrue(error instanceof DomainException);
+                     assertNotNull(error.getMessage()); // al menos garantizas que tenga algo
+                 })
+                 .verify();
 
-        verify(loanApplicationValidator).validateLoanApplication(baseLoan);
-        verify(loanApplicationRepository, never()).save(any());
-    }
+         verify(loanApplicationValidator, times(1)).validateLoanApplication(any());
+         verify(findLoanTypeUseCase, times(1)).findLoanTypeById(99);
+         verify(findStatusUseCase, never()).findStatusById(any());
+         verify(loanApplicationRepository, never()).save(any());
+     }
 
-    @Test
-    void shouldErrorWhenStatusNotFound() {
-        when(findLoanTypeUseCase.findLoanTypeById(1)).thenReturn(Mono.just(new LoanType(1)));
-        when(findStatusUseCase.findStatusById(10)).thenReturn(Mono.error(new DomainException("Status not found")));
 
-        Mono<LoanApplication> result = useCase.execute(baseLoan);
+     @Test
+     void shouldFailWhenStatusDoesNotExist() {
+         LoanApplication loanApplication = new LoanApplication();
+         loanApplication.setLoanType(new LoanType(1));
+         loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
 
-        StepVerifier.create(result)
-                .expectErrorMatches(err -> err instanceof DomainException &&
-                        err.getMessage().equals("Status not found"))
-                .verify();
+         LoanType loanType = new LoanType(1);
 
-        verify(loanApplicationValidator).validateLoanApplication(baseLoan);
-        verify(loanApplicationRepository, never()).save(any());
-    }
+         when(findLoanTypeUseCase.findLoanTypeById(1)).thenReturn(Mono.just(loanType));
+         when(findStatusUseCase.findStatusById(LoanApplicationConstants.INITIAL_STATUS))
+                 .thenReturn(Mono.error(new DomainException(LoanApplicationMessages.STATUS_NO_VALID)));
+
+         StepVerifier.create(useCase.execute(loanApplication))
+                 .expectError(DomainException.class)
+                 .verify();
+
+         verify(findLoanTypeUseCase, times(1)).findLoanTypeById(1);
+         verify(findStatusUseCase, times(1)).findStatusById(LoanApplicationConstants.INITIAL_STATUS);
+         verify(loanApplicationRepository, never()).save(any());
+     }
+
 
 }

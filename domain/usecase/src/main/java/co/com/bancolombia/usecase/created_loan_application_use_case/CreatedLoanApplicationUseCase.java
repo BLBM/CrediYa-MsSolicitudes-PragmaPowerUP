@@ -1,6 +1,7 @@
 package co.com.bancolombia.usecase.created_loan_application_use_case;
 
 import co.com.bancolombia.model.loan_application.LoanApplication;
+import co.com.bancolombia.model.loan_application.gateways.LoanApplicationConstants;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.loan_type.LoanType;
 import co.com.bancolombia.model.status.Status;
@@ -18,28 +19,27 @@ public class CreatedLoanApplicationUseCase {
     private final FindStatusUseCase findStatusUseCase;
     private final LoanApplicationValidator  loanApplicationValidator;
 
+    public Mono<LoanApplication> execute(LoanApplication loanApplication) {
+        return Mono.defer(() -> {
+            loanApplicationValidator.validateLoanApplication(loanApplication);
+            loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
 
-    public Mono<LoanApplication> execute(LoanApplication loanApplication){
+            return findLoanTypeUseCase.findLoanTypeById(loanApplication.getLoanType().getLoanTypeId())
+                    .flatMap(loanType ->
+                            findStatusUseCase.findStatusById(loanApplication.getStatus().getStatusId())
+                                    .flatMap(status -> {
+                                        loanApplication.setLoanType(loanType);
+                                        loanApplication.setStatus(status);
 
-        loanApplicationValidator.validateLoanApplication(loanApplication);
-
-        Mono<LoanType> loanTypeMono = findLoanTypeUseCase.findLoanTypeById(loanApplication.getLoanType().getLoanTypeId());
-        Mono<Status> statusMono =findStatusUseCase.findStatusById(loanApplication.getStatus().getStatusId());
-
-        return Mono.zip(loanTypeMono,statusMono
-        ).flatMap(loanTypeStatusTuple -> {
-            LoanType loanType = loanTypeStatusTuple.getT1();
-            Status status = loanTypeStatusTuple.getT2();
-
-            loanApplication.setLoanType(loanType);
-            loanApplication.setStatus(status);
-
-            return loanApplicationRepository.save(loanApplication)
-                    .map(loanApplicationSaved -> {
-                        loanApplicationSaved.setLoanType(loanType);
-                        loanApplicationSaved.setStatus(status);
-                        return loanApplicationSaved;
-                    });
+                                        return loanApplicationRepository.save(loanApplication)
+                                                .map(loanApplicationSaved -> {
+                                                    loanApplicationSaved.setLoanType(loanType);
+                                                    loanApplicationSaved.setStatus(status);
+                                                    return loanApplicationSaved;
+                                                });
+                                    })
+                    );
         });
     }
+
 }
