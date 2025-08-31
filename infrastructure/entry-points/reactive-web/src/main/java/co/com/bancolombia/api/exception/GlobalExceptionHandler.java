@@ -25,7 +25,6 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> body = new HashMap<>();
         body.put(LogConstants.TIMESTAMP_ERROR,LocalDateTime.now());
-        body.put(LogConstants.STATUS_ERROR, HttpStatus.BAD_REQUEST.value());
         body.put(LogConstants.DOMAIN_ERROR, LogConstants.DOMAIN_ERROR_MESSAGE);
         body.put(LogConstants.MESSAGE_ERROR, ex.getMessage());
 
@@ -39,7 +38,6 @@ public class GlobalExceptionHandler {
 
         Map<String, Object> body = new HashMap<>();
         body.put(LogConstants.TIMESTAMP_ERROR,LocalDateTime.now());
-        body.put(LogConstants.STATUS_ERROR, HttpStatus.BAD_REQUEST.value());
         body.put(LogConstants.APPLICATION_ERROR, LogConstants.SERVER_ERROR_MESSAGE);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }

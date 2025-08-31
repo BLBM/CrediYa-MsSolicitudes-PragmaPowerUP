@@ -10,6 +10,7 @@ import co.com.bancolombia.logconstants.LogConstants;
 import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ public class LoanApplicationController {
 
     @PostMapping
     @Operation(summary = SwaggerConstant.SUMMARY_LOAN_APPLICATION)
+    @PreAuthorize("hasAnyRole('USER')")
     public Mono<LoanApplicationResponse> createLoanApplication(@RequestBody LoanApplicationRequest loanApplicationRequest){
         log.info(LogConstants.REQUEST_RECEIVED,loanApplicationRequest);
 

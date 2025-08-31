@@ -20,6 +20,11 @@ management:
     health:
       probes:
         enabled: true
+
+jwt:
+  secret: "YWRzYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYQ=="
+  expiration: "36000000"
+
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 adapters:
