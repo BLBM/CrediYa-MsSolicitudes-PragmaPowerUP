@@ -13,4 +13,5 @@ public interface LoanApplicationMessages {
     String TIME_LIMIT_NO_VALID = "Time limit is no valid";
     String AMOUNT_NO_VALID = "Amount  is no valid";
     String STATUS_NO_VALID = "Status is no valid";
+    String USER_NO_EXIST = "not exist user with this email";
 }

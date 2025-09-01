@@ -9,8 +9,6 @@ import java.util.Date;
 public record LoanApplicationRequest(
         Double amount,
         Date timeLimit,
-        String documentId,
-        String email,
         @Schema(defaultValue = SwaggerConstant.LOAN_TYPE_REQUEST, description = SwaggerConstant.LOAN_TYPE_DEFAULT_DESCRIPTION)
         Integer loanTypeId) {
 }

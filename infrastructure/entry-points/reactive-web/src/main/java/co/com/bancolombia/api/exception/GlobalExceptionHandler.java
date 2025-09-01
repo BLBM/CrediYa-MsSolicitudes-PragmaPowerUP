@@ -5,8 +5,11 @@ import co.com.bancolombia.model.exception.DomainException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
@@ -40,6 +43,24 @@ public class GlobalExceptionHandler {
         body.put(LogConstants.TIMESTAMP_ERROR,LocalDateTime.now());
         body.put(LogConstants.APPLICATION_ERROR, LogConstants.SERVER_ERROR_MESSAGE);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Map<String, Object> handleAuthentication(AuthenticationException ex) {
+        return Map.of(
+                LogConstants.MESSAGE_ERROR,LogConstants.AUTH_ERROR_MESSAGE_UNAUTHORIZED,
+                LogConstants.TIMESTAMP_ERROR, LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public Map<String, Object> handleAccessDenied(AccessDeniedException ex) {
+        return Map.of(
+                LogConstants.MESSAGE_ERROR, LogConstants.AUTH_ERROR_MESSAGE_FORBIDDEN,
+                LogConstants.TIMESTAMP_ERROR, LocalDateTime.now()
+        );
     }
 
 

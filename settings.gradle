@@ -28,3 +28,5 @@ include ':log-constants'
 project(':log-constants').projectDir = file('./infrastructure/helpers/log-constants')
 include ':jwt-implementation'
 project(':jwt-implementation').projectDir = file('./infrastructure/driven-adapters/jwt-implementation')
+include ':rest-consumer'
+project(':rest-consumer').projectDir = file('./infrastructure/driven-adapters/rest-consumer')

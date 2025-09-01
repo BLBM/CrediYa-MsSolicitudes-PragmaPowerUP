@@ -48,6 +48,7 @@ import static org.mockito.Mockito.*;
          LoanApplication loanApplication = new LoanApplication();
          loanApplication.setLoanType(new LoanType(1));
          loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
+         String email = "test@email.com";
 
          LoanType loanType = new LoanType(1);
          Status status = new Status(LoanApplicationConstants.INITIAL_STATUS);
@@ -58,7 +59,7 @@ import static org.mockito.Mockito.*;
                  .thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
 
          // Act & Assert
-         StepVerifier.create(useCase.execute(loanApplication))
+         StepVerifier.create(useCase.execute(loanApplication, email))
                  .assertNext(saved -> {
                      assertEquals(loanType, saved.getLoanType());
                      assertEquals(status, saved.getStatus());
@@ -77,11 +78,12 @@ import static org.mockito.Mockito.*;
          LoanApplication loanApplication = new LoanApplication();
          loanApplication.setLoanType(new LoanType(99));
          loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
+         String email = "test@email.com";
 
          when(findLoanTypeUseCase.findLoanTypeById(99))
                  .thenReturn(Mono.error(new DomainException(LoanApplicationMessages.LOAN_TYPE_NO_EXIST)));
 
-         StepVerifier.create(useCase.execute(loanApplication))
+         StepVerifier.create(useCase.execute(loanApplication, email))
                  .expectErrorSatisfies(error -> {
                      assertTrue(error instanceof DomainException);
                      assertNotNull(error.getMessage());
@@ -100,6 +102,7 @@ import static org.mockito.Mockito.*;
          LoanApplication loanApplication = new LoanApplication();
          loanApplication.setLoanType(new LoanType(1));
          loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
+         String email = "test@email.com";
 
          LoanType loanType = new LoanType(1);
 
@@ -107,7 +110,7 @@ import static org.mockito.Mockito.*;
          when(findStatusUseCase.findStatusById(LoanApplicationConstants.INITIAL_STATUS))
                  .thenReturn(Mono.error(new DomainException(LoanApplicationMessages.STATUS_NO_VALID)));
 
-         StepVerifier.create(useCase.execute(loanApplication))
+         StepVerifier.create(useCase.execute(loanApplication, email))
                  .expectError(DomainException.class)
                  .verify();
 

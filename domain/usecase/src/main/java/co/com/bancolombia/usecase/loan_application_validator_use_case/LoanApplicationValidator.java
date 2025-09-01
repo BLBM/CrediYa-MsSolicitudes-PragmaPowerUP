@@ -18,10 +18,5 @@ public class LoanApplicationValidator {
             throw  new DomainException(LoanApplicationMessages.AMOUNT_NO_VALID);
         if(loanApplication.getTimeLimit()==null)
             throw  new DomainException(LoanApplicationMessages.TIME_LIMIT_NO_VALID);
-        if (loanApplication.getEmail() == null || !loanApplication.getEmail()
-                .matches(LoanApplicationConstants.EMAIL_REGEX))
-            throw new DomainException(LoanApplicationMessages.ERROR_EMAIL_NO_VALID);
-        if(loanApplication.getDocumentId()==null || loanApplication.getDocumentId().isBlank() )
-            throw  new DomainException(LoanApplicationMessages.DOCUMENT_ID_NO_VALID);
     }
 }

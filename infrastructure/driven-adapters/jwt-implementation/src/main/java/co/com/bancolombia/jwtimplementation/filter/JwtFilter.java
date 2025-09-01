@@ -46,7 +46,8 @@ public class JwtFilter implements WebFilter {
 
 
         if (auth == null) {
-            return chain.filter(exchange);
+            log.warn(JwtMessages.JJWT_ERROR_PROCESS, JwtMessages.TOKEN_NO_FOUNDS);
+            return this.writeError(exchange, HttpStatus.UNAUTHORIZED, JwtMessages.TOKEN_NO_FOUNDS);
         }
 
         if (!auth.startsWith("Bearer ")) {
@@ -57,7 +58,7 @@ public class JwtFilter implements WebFilter {
 
         if (!jwtProvider.validate(token)) {
             log.warn(JwtMessages.JJWT_ERROR_PROCESS, JwtMessages.TOKEN_INVALID);
-            return Mono.error(new JwtException(JwtMessages.TOKEN_INVALID));
+            return writeError(exchange, HttpStatus.UNAUTHORIZED, JwtMessages.TOKEN_INVALID);
         }
 
         Authentication authentication = jwtProvider.getAuthentication(token);

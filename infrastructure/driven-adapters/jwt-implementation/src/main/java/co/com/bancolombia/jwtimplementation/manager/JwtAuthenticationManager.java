@@ -1,5 +1,7 @@
 package co.com.bancolombia.jwtimplementation.manager;
 
+import co.com.bancolombia.jwt_common.JwtMessages;
+import co.com.bancolombia.jwtimplementation.exception.JwtException;
 import co.com.bancolombia.jwtimplementation.provider.JwtProvider;
 import co.com.bancolombia.logconstants.LogConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -26,9 +28,14 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
     public Mono<Authentication> authenticate (Authentication authentication) {
         log.info(LogConstants.START_JJWT_PROCESS);
         return Mono.just(authentication)
-                .map(auth -> jwtProvider.getClaims((auth.getCredentials().toString())))
+                .map(auth -> {
+                    if (auth.getCredentials() == null) {
+                            throw new JwtException(JwtMessages.TOKEN_NO_FOUNDS);
+                        }
+                            return jwtProvider.getClaims(auth.getCredentials().toString());
+                })
                 .log()
-                .onErrorResume(e-> Mono.error(new Throwable("bad token")))
+                .onErrorResume(e-> Mono.error(new JwtException(JwtMessages.TOKEN_NO_FOUNDS)))
                 .map(claims -> {
                     @SuppressWarnings("unchecked")
                     List<Map<String, Object>> rawRoles = claims.get("roles", List.class);

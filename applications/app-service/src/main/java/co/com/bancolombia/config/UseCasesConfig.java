@@ -1,6 +1,7 @@
 package co.com.bancolombia.config;
 
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.bancolombia.model.user.gateways.UserRepository;
 import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
 import co.com.bancolombia.usecase.find_loan_type_use_case.FindLoanTypeUseCase;
 import co.com.bancolombia.usecase.find_status_use_case.FindStatusUseCase;
@@ -21,14 +22,16 @@ public class UseCasesConfig {
             LoanApplicationRepository loanApplicationRepository,
             FindStatusUseCase findStatusUseCase,
             FindLoanTypeUseCase findLoanTypeUseCase,
-            LoanApplicationValidator loanApplicationValidator
+            LoanApplicationValidator loanApplicationValidator,
+            UserRepository userRepository
 
     ) {
         return new CreatedLoanApplicationUseCase(
                 loanApplicationRepository,
                 findLoanTypeUseCase,
                 findStatusUseCase,
-                loanApplicationValidator
+                loanApplicationValidator,
+                userRepository
         );
     }
 
