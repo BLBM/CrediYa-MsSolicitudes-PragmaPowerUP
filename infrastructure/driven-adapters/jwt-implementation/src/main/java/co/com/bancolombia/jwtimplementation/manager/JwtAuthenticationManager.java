@@ -26,7 +26,7 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
 
     @Override
     public Mono<Authentication> authenticate (Authentication authentication) {
-        log.info(LogConstants.START_JJWT_PROCESS);
+        log.info(JwtMessages.START_JJWT_PROCESS_AUTHENTICATE_MANAGER);
         return Mono.just(authentication)
                 .map(auth -> {
                     if (auth.getCredentials() == null) {

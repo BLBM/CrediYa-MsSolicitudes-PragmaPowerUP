@@ -4,6 +4,7 @@ import co.com.bancolombia.model.loan_application.gateways.LoanApplicationReposit
 import co.com.bancolombia.model.user.gateways.UserRepository;
 import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
 import co.com.bancolombia.usecase.find_loan_type_use_case.FindLoanTypeUseCase;
+import co.com.bancolombia.usecase.find_loans_by_status_use_case.FindLoansByStatusUseCase;
 import co.com.bancolombia.usecase.find_status_use_case.FindStatusUseCase;
 import co.com.bancolombia.usecase.loan_application_validator_use_case.LoanApplicationValidator;
 import org.springframework.context.annotation.*;
@@ -32,6 +33,21 @@ public class UseCasesConfig {
                 findStatusUseCase,
                 loanApplicationValidator,
                 userRepository
+        );
+    }
+
+    @Bean
+    public FindLoansByStatusUseCase findLoansByStatusUseCase(
+            LoanApplicationRepository  loanApplicationRepository,
+            UserRepository userRepository,
+            FindLoanTypeUseCase findLoanTypeUseCase,
+            FindStatusUseCase findStatusUseCase
+    ){
+        return new FindLoansByStatusUseCase(
+                loanApplicationRepository,
+                userRepository,
+                findStatusUseCase,
+                findLoanTypeUseCase
         );
     }
 

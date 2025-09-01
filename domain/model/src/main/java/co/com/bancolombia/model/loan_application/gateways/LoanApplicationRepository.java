@@ -9,5 +9,5 @@ import reactor.core.publisher.Mono;
 
 public interface LoanApplicationRepository {
     Mono<LoanApplication> save(LoanApplication loanApplication);
-    Flux<LoanApplication> findByStatusId(int status);
+    Flux<LoanApplication> findByStatusId(Integer statusId);
 }

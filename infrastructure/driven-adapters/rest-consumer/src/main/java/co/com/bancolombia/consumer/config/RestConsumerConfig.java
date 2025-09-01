@@ -81,10 +81,7 @@ public class RestConsumerConfig {
 
     private ExchangeFilterFunction logRequest() {
         return (request, next) -> {
-            log.info("➡️ Request: {} {}", request.method(), request.url());
-            request.headers().forEach((name, values) ->
-                    values.forEach(value -> log.info("{}={}", name, value))
-            );
+            log.info("Request: {} {}", request.method(), request.url());
             return next.exchange(request);
         };
 

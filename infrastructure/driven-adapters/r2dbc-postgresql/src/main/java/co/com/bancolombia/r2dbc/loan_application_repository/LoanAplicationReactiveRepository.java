@@ -10,6 +10,6 @@ import reactor.core.publisher.Flux;
 
 public interface LoanAplicationReactiveRepository extends ReactiveCrudRepository<LoanApplicationEntity, Integer>, ReactiveQueryByExampleExecutor<LoanApplicationEntity> {
 
-    Flux<LoanApplicationEntity> findByStatus(int status);
+    Flux<LoanApplicationEntity> findByStatusId(Integer statusId);
 
 }

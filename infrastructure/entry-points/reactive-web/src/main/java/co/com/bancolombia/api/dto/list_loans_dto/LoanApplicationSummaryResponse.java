@@ -1,10 +1,10 @@
 package co.com.bancolombia.api.dto.list_loans_dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
-public record ListLoansResponse(
+public record LoanApplicationSummaryResponse(
         Double amount,
-        Date timeLimit,
+        LocalDate timeLimit,
         String email,
         String name,
         String loanType,

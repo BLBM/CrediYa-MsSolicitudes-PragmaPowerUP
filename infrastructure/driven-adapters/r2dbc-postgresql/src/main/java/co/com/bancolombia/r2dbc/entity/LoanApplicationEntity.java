@@ -4,7 +4,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import lombok.*;
-import java.util.Date;
+import java.time.LocalDate;
+
 
 @Getter
 @Setter
@@ -16,12 +17,12 @@ public class LoanApplicationEntity {
 
     @Id
     @Column("loan_application_id")
-    private Integer solicitudId;
+    private Integer loanApplicationId;
 
     private Double amount;
 
     @Column("time_limit")
-    private Date timeLimit;
+    private LocalDate timeLimit;
 
     @Column("document_id")
     private String documentId;

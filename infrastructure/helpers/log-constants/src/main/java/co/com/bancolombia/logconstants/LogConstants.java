@@ -9,10 +9,16 @@ public interface LogConstants {
     String START_JJWT_PROCESS = "Starting JJWT  process";
     //CONTROLLERS
     String REQUEST_RECEIVED = "Request received: {}";
+    String REQUEST_RECEIVED_LOANS_BY_STATUS = "Requests received of loans by status: {}";
+    String RESPONSE_MAPPED ="Response mapped: {}";
+    String FLOW_COMPLETED_LOANS_BY_STATUS = "Flow completed with all loans with status {}";
+    String ERROR_OPERATION_FIND_STATUS_BY_ID = "Error occurred in find status by id: {}";
+
 
     //ADAPTERS
     String SUCCESSFUL_OPERATION = "Successful operation: {}";
     String ERROR_OPERATION = "Error occurred in operation: {}";
+    String START_PROCESS_FIND_BY_STATUS = "Starting process find by status {}";
 
     //GLOBAL HANDLER
     String SERVER_ERROR = "Server error: {}";

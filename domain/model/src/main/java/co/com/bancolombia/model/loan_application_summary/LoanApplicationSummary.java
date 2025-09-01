@@ -5,8 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDate;
 
-import java.util.Date;
 
 @Getter
 @Setter
@@ -16,7 +16,7 @@ import java.util.Date;
 public class LoanApplicationSummary {
 
     private Double amount;
-    private Date timeLimit;
+    private LocalDate timeLimit;
     private String loanType;
     private String status;
     private Double interestRate;

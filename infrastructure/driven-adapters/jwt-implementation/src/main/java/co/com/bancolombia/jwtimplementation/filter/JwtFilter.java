@@ -72,6 +72,7 @@ public class JwtFilter implements WebFilter {
         exchange.getResponse().setStatusCode(status);
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
+
         String body = String.format(
                 JwtMessages.COMPLETE_ERROR_MESSAGES,
                 LocalDateTime.now(), status.value(), status.getReasonPhrase(), message

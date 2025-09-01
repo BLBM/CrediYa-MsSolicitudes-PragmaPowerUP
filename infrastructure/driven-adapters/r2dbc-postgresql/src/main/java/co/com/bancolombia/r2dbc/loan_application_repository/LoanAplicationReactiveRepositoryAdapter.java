@@ -4,6 +4,8 @@ package co.com.bancolombia.r2dbc.loan_application_repository;
 import co.com.bancolombia.logconstants.LogConstants;
 import co.com.bancolombia.model.loan_application.LoanApplication;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.bancolombia.model.loan_type.LoanType;
+import co.com.bancolombia.model.status.Status;
 import co.com.bancolombia.r2dbc.entity.LoanApplicationEntity;
 import co.com.bancolombia.r2dbc.helper.ReactiveAdapterOperations;
 import lombok.extern.slf4j.Slf4j;
@@ -32,15 +34,33 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
     @Override
     protected LoanApplicationEntity toData(LoanApplication loanApplication) {
         return LoanApplicationEntity.builder()
-                .solicitudId(loanApplication.getLoanApplicationId())
+                .loanApplicationId(loanApplication.getLoanApplicationId())
                 .amount(loanApplication.getAmount())
                 .timeLimit(loanApplication.getTimeLimit())
                 .documentId(loanApplication.getDocumentId())
                 .email(loanApplication.getEmail())
-                .statusId(loanApplication.getStatus().getStatusId()) // solo el ID
-                .loanTypeId(loanApplication.getLoanType().getLoanTypeId()) // solo el ID
+                .statusId(loanApplication.getStatus().getStatusId())
+                .loanTypeId(loanApplication.getLoanType().getLoanTypeId())
                 .build();
     }
+
+    @Override
+    protected LoanApplication toEntity(LoanApplicationEntity entity) {
+        return LoanApplication.builder()
+                .loanApplicationId(entity.getLoanApplicationId())
+                .amount(entity.getAmount())
+                .timeLimit(entity.getTimeLimit())
+                .documentId(entity.getDocumentId())
+                .email(entity.getEmail())
+                .status(Status.builder()
+                        .statusId(entity.getStatusId())
+                        .build())
+                .loanType(LoanType.builder()
+                        .loanTypeId(entity.getLoanTypeId())
+                        .build())
+                .build();
+    }
+
 
     @Override
     public Mono<LoanApplication> save(LoanApplication loanApplication) {
@@ -53,9 +73,11 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
     }
 
     @Override
-    public Flux<LoanApplication> findByStatusId(int status) {
-        return repository.findByStatus(status)
-                .map(this::toEntity);
+    public Flux<LoanApplication> findByStatusId(Integer statusId) {
+        log.debug(LogConstants.START_PROCESS_FIND_BY_STATUS, statusId);
+        return repository.findByStatusId(statusId)
+                .map(this::toEntity)
+                .doOnError(e -> log.error(LogConstants.ERROR_OPERATION_FIND_STATUS_BY_ID, statusId));
     }
 
     @Override
