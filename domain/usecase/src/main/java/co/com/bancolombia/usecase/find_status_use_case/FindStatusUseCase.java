@@ -7,6 +7,8 @@ import co.com.bancolombia.model.status.gateways.StatusRepository;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 public class FindStatusUseCase {
 
@@ -15,4 +17,6 @@ public class FindStatusUseCase {
     public Mono<Status> findStatusById(Integer statusId){
         return statusRepository.findById(statusId).switchIfEmpty(Mono.error(new DomainException(LoanApplicationMessages.STATUS_NO_VALID)));
     }
+
+
 }

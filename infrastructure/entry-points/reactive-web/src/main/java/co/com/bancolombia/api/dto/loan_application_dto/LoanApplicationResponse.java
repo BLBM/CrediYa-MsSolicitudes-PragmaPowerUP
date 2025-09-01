@@ -1,4 +1,4 @@
-package co.com.bancolombia.api.dto;
+package co.com.bancolombia.api.dto.loan_application_dto;
 
 import co.com.bancolombia.api.common.SwaggerConstant;
 import io.swagger.v3.oas.annotations.media.Schema;

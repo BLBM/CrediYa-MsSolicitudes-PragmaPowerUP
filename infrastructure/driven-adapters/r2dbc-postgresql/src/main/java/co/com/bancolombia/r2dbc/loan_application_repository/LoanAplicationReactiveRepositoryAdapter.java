@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.reactive.TransactionalOperator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -49,6 +50,12 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
                 .as(txOperator::transactional)
                 .doOnSuccess(saved -> log.info(LogConstants.SUCCESSFUL_OPERATION, saved))
                 .doOnError(e -> log.error(LogConstants.ERROR_OPERATION, loanApplication));
+    }
+
+    @Override
+    public Flux<LoanApplication> findByStatusId(int status) {
+        return repository.findByStatus(status)
+                .map(this::toEntity);
     }
 
     @Override

@@ -2,5 +2,7 @@ package co.com.bancolombia.api.common;
 
 public interface RequestMappingConstant {
 
-    String URL_LOAN_APPLICATION = "/api/v1/loan-applications";
+    String GLOBAL_URL = "/api/v1";
+    String LOAN_APPLICATION_URL = "/loan_applications";
+    String LOAN_APPLICATION_LIST_URL = "/loan_application/list";
 }

@@ -14,4 +14,5 @@ public interface LoanApplicationMessages {
     String AMOUNT_NO_VALID = "Amount  is no valid";
     String STATUS_NO_VALID = "Status is no valid";
     String USER_NO_EXIST = "not exist user with this email";
+    String LOAN_STATUS_NO_EXIST = "do not exist loans with this status";
 }

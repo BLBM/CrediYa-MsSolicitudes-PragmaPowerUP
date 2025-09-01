@@ -1,8 +1,8 @@
 package co.com.bancolombia.api.mapper;
 
 
-import co.com.bancolombia.api.dto.LoanApplicationRequest;
-import co.com.bancolombia.api.dto.LoanApplicationResponse;
+import co.com.bancolombia.api.dto.loan_application_dto.LoanApplicationRequest;
+import co.com.bancolombia.api.dto.loan_application_dto.LoanApplicationResponse;
 import co.com.bancolombia.model.loan_application.LoanApplication;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
