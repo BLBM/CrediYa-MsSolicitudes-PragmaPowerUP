@@ -67,14 +67,12 @@ public class RestConsumerConfig {
                         .map(SecurityContext::getAuthentication)
                         .filter(auth -> auth != null && auth.getCredentials() instanceof String)
                         .flatMap(auth -> {
-                            String token = (String) auth.getCredentials();
 
                             ClientRequest newRequest = ClientRequest.from(request)
-                                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer ")
                                     .build();
                             return next.exchange(newRequest);
                         })
-                        // Si no hay token, sigue sin header
                         .switchIfEmpty(next.exchange(request));
     }
 

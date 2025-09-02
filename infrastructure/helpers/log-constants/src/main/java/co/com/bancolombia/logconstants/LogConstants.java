@@ -33,6 +33,14 @@ public interface LogConstants {
     String AUTH_ERROR_MESSAGE_FORBIDDEN = "You don’t have permission to perform this action";
     String AUTH_ERROR_MESSAGE_UNAUTHORIZED = "bad authorized";
 
+    //REST CONSUMER
+    String CONSUME_API_AUTHENTICATION = "Consume API Authentication find by email {}";
+    String ERROR_CONSUME_API_AUTHENTICATION = "Error occurred in consume api authentication";
+    String ERROR_MS_AUTHENTICATION = "Error in the ms of authentication: {}";
+
+
+
+
 
 
 }

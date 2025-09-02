@@ -26,7 +26,7 @@ include ':reactive-web'
 project(':reactive-web').projectDir = file('./infrastructure/entry-points/reactive-web')
 include ':log-constants'
 project(':log-constants').projectDir = file('./infrastructure/helpers/log-constants')
-include ':jwt-implementation'
-project(':jwt-implementation').projectDir = file('./infrastructure/driven-adapters/jwt-implementation')
 include ':rest-consumer'
 project(':rest-consumer').projectDir = file('./infrastructure/driven-adapters/rest-consumer')
+include ':jwt-implementation'
+project(':jwt-implementation').projectDir = file('./infrastructure/helpers/jwt-implementation')

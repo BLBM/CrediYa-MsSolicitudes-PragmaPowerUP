@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.loan_application_validator_use_case;
+package co.com.bancolombia.usecase.util;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.LoanApplication;

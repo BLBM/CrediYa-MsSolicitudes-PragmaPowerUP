@@ -1,18 +1,19 @@
-package co.com.bancolombia.usecase.loan_application_validator_use_case;
+package co.com.bancolombia.usecase.util;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.LoanApplication;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;
 import co.com.bancolombia.model.loan_type.LoanType;
-import co.com.bancolombia.model.status.Status;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.Date;
 
 class LoanAppValidatorUseCaseTest {
 
@@ -24,6 +25,8 @@ class LoanAppValidatorUseCaseTest {
     }
 
     private LoanApplication baseValidLoanApplication() {
+        LocalDate date = LocalDate.now();
+
         LoanType loanType = LoanType.builder()
                 .loanTypeId(1)
                 .build();
@@ -32,7 +35,7 @@ class LoanAppValidatorUseCaseTest {
                 .loanApplicationId(100)
                 .loanType(loanType)
                 .amount(1000.0)
-                .timeLimit(new Date())
+                .timeLimit(date)
                 .email("valid@email.com")
                 .documentId("12345")
                 .build();

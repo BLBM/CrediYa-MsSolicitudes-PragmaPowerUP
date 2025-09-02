@@ -7,9 +7,9 @@ import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessage
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.status.Status;
 import co.com.bancolombia.model.user.gateways.UserRepository;
-import co.com.bancolombia.usecase.find_loan_type_use_case.FindLoanTypeUseCase;
+import co.com.bancolombia.usecase.find_loan_status_and_type.FindLoanTypeUseCase;
 import co.com.bancolombia.usecase.find_status_use_case.FindStatusUseCase;
-import co.com.bancolombia.usecase.loan_application_validator_use_case.LoanApplicationValidator;
+import co.com.bancolombia.usecase.util.LoanApplicationValidator;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
