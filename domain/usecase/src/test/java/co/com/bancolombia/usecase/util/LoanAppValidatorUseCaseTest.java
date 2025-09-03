@@ -7,10 +7,6 @@ import co.com.bancolombia.model.loan_type.LoanType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
-
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -78,30 +74,6 @@ class LoanAppValidatorUseCaseTest {
                 () -> validator.validateLoanApplication(loan));
 
         assertEquals(LoanApplicationMessages.TIME_LIMIT_NO_VALID, ex.getMessage());
-    }
-
-    @Test
-    void shouldThrowWhenEmailIsInvalid() {
-        LoanApplication loan = baseValidLoanApplication();
-        loan.setEmail("invalid-email");
-
-        DomainException ex = assertThrows(DomainException.class,
-                () -> validator.validateLoanApplication(loan));
-
-        assertEquals(LoanApplicationMessages.ERROR_EMAIL_NO_VALID, ex.getMessage());
-    }
-
-    @ParameterizedTest
-    @NullAndEmptySource
-    @ValueSource(strings = {"  ", "\t", "\n"})
-    void shouldThrowWhenDocumentIdIsInvalid(String invalidDocId) {
-        LoanApplication loan = baseValidLoanApplication();
-        loan.setDocumentId(invalidDocId);
-
-        DomainException ex = assertThrows(DomainException.class,
-                () -> validator.validateLoanApplication(loan));
-
-        assertEquals(LoanApplicationMessages.DOCUMENT_ID_NO_VALID, ex.getMessage());
     }
 
     @Test

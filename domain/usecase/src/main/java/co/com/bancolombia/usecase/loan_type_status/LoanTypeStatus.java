@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.find_loan_status_and_type;
+package co.com.bancolombia.usecase.loan_type_status;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;
@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
-public class FindLoanTypeStatusUseCase {
+public class LoanTypeStatus {
 
     private final LoanTypeRepository loanTypeRepository;
 

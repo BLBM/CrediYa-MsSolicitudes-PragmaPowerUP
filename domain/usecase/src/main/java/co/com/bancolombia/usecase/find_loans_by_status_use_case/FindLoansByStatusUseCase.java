@@ -11,7 +11,8 @@ import co.com.bancolombia.model.loan_type.LoanType;
 import co.com.bancolombia.model.status.Status;
 import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.UserRepository;
-import co.com.bancolombia.usecase.find_loan_status_and_type.FindLoanTypeStatusUseCase;
+
+import co.com.bancolombia.usecase.loan_type_status.LoanTypeStatus;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -21,7 +22,7 @@ public class FindLoansByStatusUseCase {
 
     private final LoanApplicationRepository loanApplicationRepository;
     private final UserRepository userRepository;
-    private final FindLoanTypeStatusUseCase findLoanTypeStatusUseCase;
+    private final LoanTypeStatus loanTypeStatus;
 
 
     public Flux<LoanApplicationSummary> execute(int status) {
@@ -32,9 +33,9 @@ public class FindLoansByStatusUseCase {
     private Mono<LoanApplicationSummary> buildSummary(LoanApplication loanApplication) {
         Mono<User> userMono = userRepository.findByEmail(loanApplication.getEmail())
                 .switchIfEmpty(Mono.error(new DomainException(LoanApplicationMessages.USER_NO_EXIST)));
-        Mono<LoanType> loanTypeMono = findLoanTypeStatusUseCase.findLoanTypeById(
+        Mono<LoanType> loanTypeMono = loanTypeStatus.findLoanTypeById(
                 loanApplication.getLoanType().getLoanTypeId());
-        Mono<Status> statusMono = findLoanTypeStatusUseCase.findStatusById(
+        Mono<Status> statusMono = loanTypeStatus.findStatusById(
                 loanApplication.getStatus().getStatusId());
 
         return Mono.zip(userMono, loanTypeMono, statusMono)

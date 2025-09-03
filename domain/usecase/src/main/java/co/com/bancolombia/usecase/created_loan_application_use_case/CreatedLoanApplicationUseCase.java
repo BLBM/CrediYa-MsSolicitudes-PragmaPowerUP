@@ -7,8 +7,7 @@ import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessage
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.status.Status;
 import co.com.bancolombia.model.user.gateways.UserRepository;
-import co.com.bancolombia.usecase.find_loan_status_and_type.FindLoanTypeUseCase;
-import co.com.bancolombia.usecase.find_status_use_case.FindStatusUseCase;
+import co.com.bancolombia.usecase.loan_type_status.LoanTypeStatus;
 import co.com.bancolombia.usecase.util.LoanApplicationValidator;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -17,8 +16,7 @@ import reactor.core.publisher.Mono;
 public class CreatedLoanApplicationUseCase {
 
     private final LoanApplicationRepository loanApplicationRepository;
-    private final FindLoanTypeUseCase findLoanTypeUseCase;
-    private final FindStatusUseCase findStatusUseCase;
+    private final LoanTypeStatus loanTypeStatus;
     private final LoanApplicationValidator  loanApplicationValidator;
     private final UserRepository userRepository;
 
@@ -33,9 +31,9 @@ public class CreatedLoanApplicationUseCase {
                         loanApplication.setEmail(user.getEmail());
                         loanApplication.setDocumentId(user.getDocumentId());
 
-                return findLoanTypeUseCase.findLoanTypeById(loanApplication.getLoanType().getLoanTypeId())
+                return loanTypeStatus.findLoanTypeById(loanApplication.getLoanType().getLoanTypeId())
                         .flatMap(loanType ->
-                                findStatusUseCase.findStatusById(loanApplication.getStatus().getStatusId())
+                                loanTypeStatus.findStatusById(loanApplication.getStatus().getStatusId())
                                         .flatMap(status -> {
                                             loanApplication.setLoanType(loanType);
                                             loanApplication.setStatus(status);
