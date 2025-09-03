@@ -5,14 +5,15 @@ import co.com.bancolombia.model.status.Status;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
-import java.util.Date;
+import java.time.LocalDate;
+
 
 class LoanApplicationTest {
 
     @Test
     @DisplayName("Create Loan Application")
     void createLoanApplication() {
-        Date limitDate = new Date();
+        LocalDate limitDate = LocalDate.now();
         Status status = Status.builder()
                 .name("PENDING")
                 .description("PENDING")
