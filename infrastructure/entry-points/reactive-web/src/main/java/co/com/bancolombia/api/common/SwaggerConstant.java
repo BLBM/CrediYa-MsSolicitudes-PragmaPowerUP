@@ -6,6 +6,7 @@ public interface SwaggerConstant {
     //SUMMARY
     String SUMMARY_LOAN_APPLICATION = "request a new loan application";
     String SUMMARY_LOAN_APPLICATION_LIST = "request that return loan applications filters for status ";
+    String SUMMARY_LOAN_APPLICATION_UPDATE = "update loan applications set status";
 
     //SCHEMA
     String LOAN_TYPE_REQUEST = "1";

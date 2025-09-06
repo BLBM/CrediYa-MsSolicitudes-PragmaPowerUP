@@ -21,4 +21,6 @@ public interface LoanApplicationMapper {
     @Mapping(source = "status.description", target = "statusDescription")
     @Mapping(source = "loanType.name", target = "loanTypeName")
     LoanApplicationResponse toResponse(LoanApplication loanApplication);
+
+
 }

@@ -67,15 +67,14 @@ public class RestConsumerConfig {
                         .map(SecurityContext::getAuthentication)
                         .filter(auth -> auth != null && auth.getCredentials() instanceof String)
                         .flatMap(auth -> {
-
+                            String token = (String) auth.getCredentials();
                             ClientRequest newRequest = ClientRequest.from(request)
-                                    .header(HttpHeaders.AUTHORIZATION, "Bearer ")
+                                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
                                     .build();
                             return next.exchange(newRequest);
                         })
                         .switchIfEmpty(next.exchange(request));
     }
-
 
     private ExchangeFilterFunction logRequest() {
         return (request, next) -> {

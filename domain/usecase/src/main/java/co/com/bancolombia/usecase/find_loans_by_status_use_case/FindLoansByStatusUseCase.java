@@ -4,6 +4,7 @@ package co.com.bancolombia.usecase.find_loans_by_status_use_case;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.LoanApplication;
+import co.com.bancolombia.model.loan_application.gateways.LoanApplicationConstants;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.loan_application_summary.LoanApplicationSummary;
@@ -13,14 +14,18 @@ import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.UserRepository;
 
 import co.com.bancolombia.usecase.loan_type_status.LoanTypeStatus;
+import co.com.bancolombia.usecase.util.LoanCalculationService;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 public class FindLoansByStatusUseCase {
 
     private final LoanApplicationRepository loanApplicationRepository;
+    private final LoanCalculationService loanCalculationService;
     private final UserRepository userRepository;
     private final LoanTypeStatus loanTypeStatus;
 
@@ -37,12 +42,27 @@ public class FindLoansByStatusUseCase {
                 loanApplication.getLoanType().getLoanTypeId());
         Mono<Status> statusMono = loanTypeStatus.findStatusById(
                 loanApplication.getStatus().getStatusId());
+        Flux<LoanApplication> loanAppsApproved = loanApplicationRepository.findByStatusIdAndEmail(
+                LoanApplicationConstants.APPROVED_STATUS, loanApplication.getEmail());
 
-        return Mono.zip(userMono, loanTypeMono, statusMono)
+
+        return Mono.zip(userMono, loanTypeMono, statusMono,loanAppsApproved.collectList())
                 .map(tuple -> {
                     User user = tuple.getT1();
                     LoanType loanType = tuple.getT2();
                     Status status = tuple.getT3();
+                    List<LoanApplication> loansApproved = tuple.getT4();
+
+
+                    double totalDebt = loansApproved.stream()
+                            .mapToDouble(loan -> loanCalculationService.calculateApproximateMonthlyDebt(
+                                    loan.getAmount(),
+                                    loanType.getInterestRate(),
+                                    loan.getTimeLimit()
+                            ))
+                            .sum();
+
+                    totalDebt = Math.round(totalDebt * 100.0) / 100.0;
 
                     return LoanApplicationSummary.builder()
                             .amount(loanApplication.getAmount())
@@ -53,7 +73,7 @@ public class FindLoansByStatusUseCase {
                             .name(user.getFirstName() + " " + user.getLastName())
                             .baseSalary(user.getBaseSalary())
                             .email(user.getEmail())
-                            .totalDebt(0.0)
+                            .totalDebt(totalDebt)
                             .build();
                 });
     }

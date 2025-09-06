@@ -11,5 +11,6 @@ import reactor.core.publisher.Flux;
 public interface LoanAplicationReactiveRepository extends ReactiveCrudRepository<LoanApplicationEntity, Integer>, ReactiveQueryByExampleExecutor<LoanApplicationEntity> {
 
     Flux<LoanApplicationEntity> findByStatusId(Integer statusId);
+    Flux<LoanApplicationEntity> findByStatusIdAndEmail(Integer statusId, String email);
 
 }

@@ -7,6 +7,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.0'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.9.25"
     implementation 'io.micrometer:micrometer-registry-prometheus'
     implementation "org.mapstruct:mapstruct:$mapStructVersion"
     annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"

@@ -8,6 +8,7 @@ import co.com.bancolombia.model.loan_type.LoanType;
 import co.com.bancolombia.model.status.Status;
 import co.com.bancolombia.r2dbc.entity.LoanApplicationEntity;
 import co.com.bancolombia.r2dbc.helper.ReactiveAdapterOperations;
+import co.com.bancolombia.r2dbc.mapper.LoanApplicationMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
@@ -25,42 +26,27 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
         > implements LoanApplicationRepository {
 
     private final TransactionalOperator txOperator;
+    private final LoanApplicationMapper loanApplicationMapper;
 
-    public LoanAplicationReactiveRepositoryAdapter(LoanAplicationReactiveRepository repository, ObjectMapper mapper, TransactionalOperator txOperator) {
-        super(repository, mapper, d -> mapper.map(d, LoanApplication.class));
+    public LoanAplicationReactiveRepositoryAdapter(
+            LoanAplicationReactiveRepository repository,
+            ObjectMapper mapper,
+            TransactionalOperator txOperator,
+            LoanApplicationMapper loanApplicationMapper) {
+        super(repository, mapper, loanApplicationMapper::toDomain);
         this.txOperator = txOperator;
+        this.loanApplicationMapper = loanApplicationMapper;
     }
 
     @Override
     protected LoanApplicationEntity toData(LoanApplication loanApplication) {
-        return LoanApplicationEntity.builder()
-                .loanApplicationId(loanApplication.getLoanApplicationId())
-                .amount(loanApplication.getAmount())
-                .timeLimit(loanApplication.getTimeLimit())
-                .documentId(loanApplication.getDocumentId())
-                .email(loanApplication.getEmail())
-                .statusId(loanApplication.getStatus().getStatusId())
-                .loanTypeId(loanApplication.getLoanType().getLoanTypeId())
-                .build();
+        return loanApplicationMapper.toEntity(loanApplication);
     }
 
     @Override
     protected LoanApplication toEntity(LoanApplicationEntity entity) {
-        return LoanApplication.builder()
-                .loanApplicationId(entity.getLoanApplicationId())
-                .amount(entity.getAmount())
-                .timeLimit(entity.getTimeLimit())
-                .documentId(entity.getDocumentId())
-                .email(entity.getEmail())
-                .status(Status.builder()
-                        .statusId(entity.getStatusId())
-                        .build())
-                .loanType(LoanType.builder()
-                        .loanTypeId(entity.getLoanTypeId())
-                        .build())
-                .build();
+        return loanApplicationMapper.toDomain(entity);
     }
-
 
     @Override
     public Mono<LoanApplication> save(LoanApplication loanApplication) {
@@ -73,12 +59,31 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
     }
 
     @Override
+    public Mono<LoanApplication> update(LoanApplication loanApplication) {
+        log.debug(LogConstants.START_PROCESS_UPDATE,loanApplication.getLoanApplicationId());
+        return repository.save(toData(loanApplication))
+                .map(this::toEntity)
+                .as(txOperator::transactional)
+                .doOnSuccess(saved -> log.info(LogConstants.SUCCESSFUL_OPERATION_UPDATE, saved))
+                .doOnError(e -> log.error(LogConstants.ERROR_OPERATION_UPDATE, loanApplication));
+    }
+
+    @Override
     public Flux<LoanApplication> findByStatusId(Integer statusId) {
         log.debug(LogConstants.START_PROCESS_FIND_BY_STATUS, statusId);
         return repository.findByStatusId(statusId)
                 .map(this::toEntity)
                 .doOnError(e -> log.error(LogConstants.ERROR_OPERATION_FIND_STATUS_BY_ID, statusId));
     }
+
+    @Override
+    public Flux<LoanApplication> findByStatusIdAndEmail(Integer statusId, String email) {
+        return repository.findByStatusIdAndEmail(statusId,email)
+                .map(this::toEntity)
+                .doOnError(e -> log.error(LogConstants.ERROR_OPERATION_FIND_BY_STATUS_AND_DOCUMENT,statusId,email));
+    }
+
+
 
     @Override
     public Mono<LoanApplication> findById(Integer loanApplicationId) {

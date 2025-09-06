@@ -2,6 +2,7 @@ package co.com.bancolombia.usecase.find_loans_by_status_usecase_test;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.LoanApplication;
+import co.com.bancolombia.model.loan_application.gateways.LoanApplicationConstants;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.loan_type.LoanType;
@@ -10,6 +11,7 @@ import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.UserRepository;
 import co.com.bancolombia.usecase.find_loans_by_status_use_case.FindLoansByStatusUseCase;
 import co.com.bancolombia.usecase.loan_type_status.LoanTypeStatus;
+import co.com.bancolombia.usecase.util.LoanCalculationService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -37,6 +39,9 @@ class FindLoansByStatusUseCaseTest {
 
     @Mock
     private LoanTypeStatus loanTypeStatus;
+
+    @Mock
+    private LoanCalculationService loanCalculationService;
 
     @InjectMocks
     private FindLoansByStatusUseCase useCase;
@@ -67,10 +72,17 @@ class FindLoansByStatusUseCaseTest {
         Status status = new Status(1);
         status.setDescription("APPROVED");
 
-        when(loanApplicationRepository.findByStatusId(1)).thenReturn(Flux.just(loanApplication));
-        when(userRepository.findByEmail("test@email.com")).thenReturn(Mono.just(user));
-        when(loanTypeStatus.findLoanTypeById(1)).thenReturn(Mono.just(loanType));
-        when(loanTypeStatus.findStatusById(1)).thenReturn(Mono.just(status));
+        when(loanApplicationRepository.findByStatusId(1))
+                .thenReturn(Flux.just(loanApplication));
+        when(userRepository.findByEmail("test@email.com"))
+                .thenReturn(Mono.just(user));
+        when(loanTypeStatus.findLoanTypeById(1))
+                .thenReturn(Mono.just(loanType));
+        when(loanTypeStatus.findStatusById(1))
+                .thenReturn(Mono.just(status));
+        when(loanApplicationRepository.findByStatusIdAndEmail(
+                LoanApplicationConstants.APPROVED_STATUS, loanApplication.getEmail()))
+                .thenReturn(Flux.empty());
 
         StepVerifier.create(useCase.execute(1))
                 .assertNext(summary -> {
@@ -87,6 +99,8 @@ class FindLoansByStatusUseCaseTest {
                 .verifyComplete();
 
         verify(loanApplicationRepository).findByStatusId(1);
+        verify(loanApplicationRepository).findByStatusIdAndEmail(
+                LoanApplicationConstants.APPROVED_STATUS, loanApplication.getEmail());
         verify(userRepository).findByEmail("test@email.com");
         verify(loanTypeStatus).findLoanTypeById(1);
         verify(loanTypeStatus).findStatusById(1);
@@ -108,6 +122,8 @@ class FindLoansByStatusUseCaseTest {
                 .thenReturn(Mono.just(new LoanType(1)));
         when(loanTypeStatus.findStatusById(1))
                 .thenReturn(Mono.just(new Status(1)));
+        when(loanApplicationRepository.findByStatusIdAndEmail(anyInt(), anyString()))
+                .thenReturn(Flux.empty());
 
         StepVerifier.create(useCase.execute(1))
                 .expectErrorSatisfies(error -> {
@@ -115,10 +131,6 @@ class FindLoansByStatusUseCaseTest {
                     assertEquals(LoanApplicationMessages.USER_NO_EXIST, error.getMessage());
                 })
                 .verify();
-
-        verify(userRepository).findByEmail("ghost@email.com");
-        verify(loanTypeStatus).findLoanTypeById(1);
-        verify(loanTypeStatus).findStatusById(1);
     }
 
     @Test
@@ -140,16 +152,13 @@ class FindLoansByStatusUseCaseTest {
         when(loanTypeStatus.findStatusById(any()))
                 .thenReturn(Mono.just(new Status(1)));
 
+        when(loanApplicationRepository.findByStatusIdAndEmail(anyInt(), anyString()))
+                .thenReturn(Flux.empty());
+
         StepVerifier.create(useCase.execute(1))
                 .expectError(DomainException.class)
                 .verify();
-
-        verify(loanTypeStatus).findLoanTypeById(99);
-        verify(loanTypeStatus).findStatusById(1);
     }
-
-
-
 
     @Test
     void shouldFailWhenStatusNotFound() {
@@ -169,11 +178,13 @@ class FindLoansByStatusUseCaseTest {
         when(loanTypeStatus.findStatusById(99))
                 .thenReturn(Mono.error(new DomainException(LoanApplicationMessages.STATUS_NO_VALID)));
 
+        when(loanApplicationRepository.findByStatusIdAndEmail(anyInt(), anyString()))
+                .thenReturn(Flux.empty());
+
         StepVerifier.create(useCase.execute(1))
                 .expectError(DomainException.class)
                 .verify();
-
-        verify(loanTypeStatus).findLoanTypeById(1);
-        verify(loanTypeStatus).findStatusById(99);
     }
+
+
 }

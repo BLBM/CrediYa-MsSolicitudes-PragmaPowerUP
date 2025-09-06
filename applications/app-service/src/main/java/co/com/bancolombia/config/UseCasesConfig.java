@@ -7,7 +7,9 @@ import co.com.bancolombia.model.user.gateways.UserRepository;
 import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
 import co.com.bancolombia.usecase.find_loans_by_status_use_case.FindLoansByStatusUseCase;
 import co.com.bancolombia.usecase.loan_type_status.LoanTypeStatus;
+import co.com.bancolombia.usecase.update_loan_status_use_case.UpdateLoanStatusUseCase;
 import co.com.bancolombia.usecase.util.LoanApplicationValidator;
+import co.com.bancolombia.usecase.util.LoanCalculationService;
 import org.springframework.context.annotation.*;
 
 @Configuration
@@ -38,15 +40,21 @@ public class UseCasesConfig {
     @Bean
     public FindLoansByStatusUseCase findLoansByStatusUseCase(
             LoanApplicationRepository  loanApplicationRepository,
+            LoanCalculationService loanCalculationService,
             UserRepository userRepository,
             LoanTypeStatus loanTypeStatus
     ){
         return new FindLoansByStatusUseCase(
                 loanApplicationRepository,
+                loanCalculationService,
                 userRepository,
                 loanTypeStatus
         );
     }
+
+    @Bean
+    public UpdateLoanStatusUseCase  updateLoanStatusUseCase(LoanApplicationRepository loanApplicationRepository, LoanTypeStatus loanTypeStatus){
+        return new UpdateLoanStatusUseCase(loanApplicationRepository, loanTypeStatus);}
 
     @Bean
     public LoanTypeStatus loanTypeStatus(LoanTypeRepository loanTypeRepository, StatusRepository statusRepository)
@@ -55,6 +63,11 @@ public class UseCasesConfig {
     @Bean
     public LoanApplicationValidator loanApplicationValidator() {
         return new LoanApplicationValidator();
+    }
+
+    @Bean
+    public LoanCalculationService loanCalculationService(){
+        return new LoanCalculationService();
     }
 
 

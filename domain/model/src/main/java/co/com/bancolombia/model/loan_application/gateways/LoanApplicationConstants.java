@@ -4,6 +4,7 @@ public interface LoanApplicationConstants {
 
     int MIN_AMOUNT = 1;
     int INITIAL_STATUS= 1;
+    int APPROVED_STATUS = 4;
     String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
 }

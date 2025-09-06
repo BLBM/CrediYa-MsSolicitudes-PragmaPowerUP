@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.find_loans_by_status_use_case;
+package co.com.bancolombia.usecase.loan_type_status_test;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;

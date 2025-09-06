@@ -10,15 +10,23 @@ public interface LogConstants {
     //CONTROLLERS
     String REQUEST_RECEIVED = "Request received: {}";
     String REQUEST_RECEIVED_LOANS_BY_STATUS = "Requests received of loans by status: {}";
+    String REQUEST_RECEIVED_UPDATE  = "Requests received updated status of loan: {}";
+    String SUCCESSFUL_APPLICATION_UPDATE = "Successful application update: {}";
+    String ERROR_PROCESS_UPDATE  = "Error update loan application: {}";
+
     String RESPONSE_MAPPED ="Response mapped: {}";
     String FLOW_COMPLETED_LOANS_BY_STATUS = "Flow completed with all loans with status {}";
     String ERROR_OPERATION_FIND_STATUS_BY_ID = "Error occurred in find status by id: {}";
 
 
     //ADAPTERS
+    String START_PROCESS_UPDATE = "Starting process update: {}";
     String SUCCESSFUL_OPERATION = "Successful operation: {}";
+    String SUCCESSFUL_OPERATION_UPDATE  = "Successful operation update: {}";
+    String ERROR_OPERATION_UPDATE = "Error operation update: {}";
     String ERROR_OPERATION = "Error occurred in operation: {}";
     String START_PROCESS_FIND_BY_STATUS = "Starting process find by status {}";
+    String ERROR_OPERATION_FIND_BY_STATUS_AND_DOCUMENT = "Error occurred in find by status and document:{} {}";
 
     //GLOBAL HANDLER
     String SERVER_ERROR = "Server error: {}";

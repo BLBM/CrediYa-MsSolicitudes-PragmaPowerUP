@@ -12,7 +12,7 @@ public class SwaggerConfig {
         return new OpenAPI()
                 .openapi("3.0.3")
                 .info(new Info()
-                        .title("API de usuarios")
+                        .title("API de Prestamos")
                         .version("1.0")
                         .description("Documentación de la API con Springdoc + WebFlux"));
     }
