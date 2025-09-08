@@ -9,6 +9,8 @@ buildscript {
         mapStructVersion = '1.6.3'
         jjwtVersion = '0.12.3'
         securityCriptoVersion = '6.2.2'
+        objectMapperJacksonVersion =  '2.18.0'
+        dotenvVersion = '4.0.0'
 	}
 }
 

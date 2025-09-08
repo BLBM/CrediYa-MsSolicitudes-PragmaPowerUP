@@ -4,6 +4,8 @@ import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.LoanApplication;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.bancolombia.model.loan_application_event.LoanApplicationEvent;
+import co.com.bancolombia.model.loan_application_event.gateways.LoanApplicationEventRepository;
 import co.com.bancolombia.usecase.loan_type_status.LoanTypeStatus;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -14,29 +16,42 @@ public class UpdateLoanStatusUseCase {
 
     private final LoanApplicationRepository loanApplicationRepository;
     private final LoanTypeStatus loanTypeStatus;
+    private final LoanApplicationEventRepository loanApplicationEventRepository;
 
 
-    public Mono<LoanApplication> updateLoanStatus(Integer loanApplicationId, Integer statusId){
-
+    public Mono<LoanApplication> updateLoanStatus(Integer loanApplicationId, Integer statusId) {
         return loanApplicationRepository.findById(loanApplicationId)
                 .switchIfEmpty(Mono.error(new DomainException(LoanApplicationMessages.LOAN_APPLICATION_NO_EXIST)))
-                    .flatMap(loanApplication -> loanTypeStatus.findLoanTypeById(loanApplication.getLoanType().getLoanTypeId())
-                        .flatMap(loanType->loanTypeStatus.findStatusById(statusId)
-                            .flatMap(status -> {
+                .flatMap(loanApplication ->
+                        loanTypeStatus.findLoanTypeById(loanApplication.getLoanType().getLoanTypeId())
+                                .zipWith(loanTypeStatus.findStatusById(statusId))
+                                .flatMap(tuple -> {
+                                    var loanType = tuple.getT1();
+                                    var status = tuple.getT2();
 
-                                loanApplication.setStatus(status);
-                                loanApplication.setLoanType(loanType);
+                                    loanApplication.setLoanType(loanType);
+                                    loanApplication.setStatus(status);
 
-                                return loanApplicationRepository.update(loanApplication)
-                                        .map(loanApplicationUpdated -> {
-                                            loanApplicationUpdated.setLoanType(loanType);
-                                            loanApplicationUpdated.setStatus(status);
-                                            return loanApplicationUpdated;
-                                                });
-                            })
-                        )
-                    );
+                                    return loanApplicationRepository.update(loanApplication)
+                                            .flatMap(updated -> {
+                                                updated.setLoanType(loanType);
+                                                updated.setStatus(status);
 
+                                                LoanApplicationEvent event = new LoanApplicationEvent(
+                                                        updated.getLoanApplicationId(),
+                                                        updated.getDocumentId(),
+                                                        updated.getEmail(),
+                                                        updated.getStatus().getDescription(),
+                                                        updated.getLoanType().getName(),
+                                                        updated.getAmount()
+                                                );
+
+                                                return loanApplicationEventRepository.publish(event)
+                                                        .thenReturn(updated);
+                                            });
+                                })
+                );
     }
+
 
 }

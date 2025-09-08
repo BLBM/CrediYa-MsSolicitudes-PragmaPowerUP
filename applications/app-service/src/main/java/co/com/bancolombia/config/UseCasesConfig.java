@@ -1,6 +1,7 @@
 package co.com.bancolombia.config;
 
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
+import co.com.bancolombia.model.loan_application_event.gateways.LoanApplicationEventRepository;
 import co.com.bancolombia.model.loan_type.gateways.LoanTypeRepository;
 import co.com.bancolombia.model.status.gateways.StatusRepository;
 import co.com.bancolombia.model.user.gateways.UserRepository;
@@ -53,8 +54,10 @@ public class UseCasesConfig {
     }
 
     @Bean
-    public UpdateLoanStatusUseCase  updateLoanStatusUseCase(LoanApplicationRepository loanApplicationRepository, LoanTypeStatus loanTypeStatus){
-        return new UpdateLoanStatusUseCase(loanApplicationRepository, loanTypeStatus);}
+    public UpdateLoanStatusUseCase  updateLoanStatusUseCase(LoanApplicationRepository loanApplicationRepository,
+                                                            LoanTypeStatus loanTypeStatus,
+                                                            LoanApplicationEventRepository  loanApplicationEventRepository) {
+        return new UpdateLoanStatusUseCase(loanApplicationRepository, loanTypeStatus, loanApplicationEventRepository);}
 
     @Bean
     public LoanTypeStatus loanTypeStatus(LoanTypeRepository loanTypeRepository, StatusRepository statusRepository)
