@@ -2,9 +2,15 @@ package co.com.bancolombia.sqs.sender.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Map;
+
 @ConfigurationProperties(prefix = "adapter.sqs")
 public record SQSSenderProperties(
-     String region,
-     String queueUrl,
-     String endpoint){
+        String region,
+        String endpoint,
+        Map<String, String> queues
+) {
+    public String getQueueUrl(String alias) {
+        return queues.get(alias);
+    }
 }

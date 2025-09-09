@@ -2,6 +2,7 @@ package co.com.bancolombia.sqs.sender;
 
 import co.com.bancolombia.model.loan_application_event.LoanApplicationEvent;
 import co.com.bancolombia.model.loan_application_event.gateways.LoanApplicationEventRepository;
+import co.com.bancolombia.sqs.sender.common.QueueAliasConstants;
 import co.com.bancolombia.sqs.sender.config.SQSSenderProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,30 +21,32 @@ public class SQSSender implements LoanApplicationEventRepository {
     private final SqsAsyncClient client;
     private final ObjectMapper objectMapper;
 
-    public Mono<String> send(String message) {
-        return Mono.fromCallable(() -> buildRequest(message))
+    public Mono<String> send(String message, String queueAlias) {
+        return Mono.fromCallable(() -> buildRequest(message, queueAlias))
                 .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
-                .doOnNext(response -> log.debug("Message sent {}", response.messageId()))
+                .doOnNext(response -> log.debug("Message sent to {} with id={}", queueAlias, response.messageId()))
                 .map(SendMessageResponse::messageId);
     }
 
-    private SendMessageRequest buildRequest(String message) {
+    private SendMessageRequest buildRequest(String message, String queueAlias) {
+        String queueUrl = properties.getQueueUrl(queueAlias);
+        if (queueUrl == null) {
+            throw new IllegalArgumentException("No queue configured for alias: " + queueAlias);
+        }
         return SendMessageRequest.builder()
-                .queueUrl(properties.queueUrl())
+                .queueUrl(queueUrl)
                 .messageBody(message)
                 .build();
     }
 
     @Override
     public Mono<Void> publish(LoanApplicationEvent event) {
+        String queueAlias = QueueAliasConstants.LOAN_APPLICATION_EVENT.getMessage();
+
         return Mono.fromCallable(() -> objectMapper.writeValueAsString(event))
-                .map(body -> SendMessageRequest.builder()
-                        .queueUrl(properties.queueUrl())
-                        .messageBody(body)
-                        .build()
-                )
+                .map(body -> buildRequest(body, queueAlias))
                 .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
-                .doOnNext(response -> log.info("Event published to SQS with id {}", response.messageId()))
+                .doOnNext(response -> log.info("Event published to {} with id {}", queueAlias, response.messageId()))
                 .then();
     }
 }

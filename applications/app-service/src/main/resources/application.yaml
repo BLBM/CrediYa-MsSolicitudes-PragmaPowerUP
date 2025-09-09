@@ -56,7 +56,8 @@ adapter:
     url: ${RESTCONSUMER_URL:http://localhost:8080/api/v1}
   sqs:
     region: ${AWS_REGION:us-east-1}
-    queueUrl: ${SQS_QUEUE_URL:https://sqs.us-east-1.amazonaws.com/302559618574/loan-application-events}
+    queues:
+      loanApplicationQueue: ${SQS_QUEUE_URL:https://sqs.us-east-1.amazonaws.com/302559618574/loan-application-events}
 
 
 resilience4j:
