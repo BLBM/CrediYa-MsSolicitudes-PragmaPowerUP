@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: "${SERVER_PORT:8080}"
 spring:
   application:
     name: "NameProject"
@@ -23,17 +23,16 @@ management:
   health:
     circuitbreakers:
       enabled: true
-
 cors:
   allowed-origins: "http://localhost:4200,http://localhost:8080"
 adapters:
   r2dbc:
-    host: ${R2DBC_HOST:localhost}
-    port: ${R2DBC_PORT:5432}
-    database: ${R2DBC_DATABASE:solicitudes_bd}
-    schema: ${R2DBC_SCHEMA:public}
-    username: ${R2DBC_USERNAME:postgres}
-    password: ${R2DBC_PASSWORD:1234}
+    host: "${R2DBC_HOST:localhost}"
+    port: "${R2DBC_PORT:5432}"
+    database: "${R2DBC_DATABASE:solicitudes_bd}"
+    schema: "${R2DBC_SCHEMA:public}"
+    username: "${R2DBC_USERNAME:postgres}"
+    password: "${R2DBC_PASSWORD:1234}"
 springdoc:
   api-docs:
     enabled: true
@@ -43,23 +42,21 @@ springdoc:
     path: "/swagger-ui.html"
     operationsSorter: "method"
     tagsSorter: "alpha"
-
 aws:
-  accessKeyId: ${AWS_ACCESS_KEY_ID:dummy}
-  secretAccessKey: ${AWS_SECRET_ACCESS_KEY:dummy}
+  accessKeyId: "${AWS_ACCESS_KEY_ID:dummy}"
+  secretAccessKey: "${AWS_SECRET_ACCESS_KEY:dummy}"
 jwt:
-  secret: ${JWT_SECRET:YWRzYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYQ==}
-  expiration: ${JWT_EXPIRATION:36000000}
+  secret: "${JWT_SECRET:YWRzYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYXNkYQ==}"
+  expiration: "${JWT_EXPIRATION:36000000}"
 adapter:
   restconsumer:
-    timeout: ${RESTCONSUMER_TIMEOUT:5000}
-    url: ${RESTCONSUMER_URL:http://localhost:8080/api/v1}
+    timeout: 5000
+    url: "${RESTCONSUMER_URL:http://localhost:8080/api/v1}"
   sqs:
-    region: ${AWS_REGION:us-east-1}
+    region: "${AWS_REGION:us-east-1}"
     queues:
-      loanApplicationQueue: ${SQS_QUEUE_URL:https://sqs.us-east-1.amazonaws.com/302559618574/loan-application-events}
-
-
+      loanApplicationQueue: "${SQS_QUEUE_URL:https://sqs.us-east-1.amazonaws.com/302559618574/loan-application-events}"
+      loanValidateQueue: "${SQS_VALIDATE_QUEUE_URL:https://sqs.us-east-1.amazonaws.com/302559618574/loan-automatic-validation}"
 resilience4j:
   circuitbreaker:
     instances:
@@ -81,3 +78,11 @@ resilience4j:
         slidingWindowSize: 10
         minimumNumberOfCalls: 10
         waitDurationInOpenState: "10s"
+entrypoint:
+  sqs:
+    region: "${AWS_REGION:us-east-1}"
+    queueUrl: "${SQS_VALIDATE_LISTENER_QUEUE_URL:https://sqs.us-east-1.amazonaws.com/302559618574/automatic-validation-listener}"
+    waitTimeSeconds: 20
+    maxNumberOfMessages: 10
+    visibilityTimeoutSeconds: 10
+    numberOfThreads: 1

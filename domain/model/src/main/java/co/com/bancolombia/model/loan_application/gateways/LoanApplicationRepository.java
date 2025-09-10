@@ -2,6 +2,7 @@ package co.com.bancolombia.model.loan_application.gateways;
 
 import co.com.bancolombia.model.loan_application.LoanApplication;
 
+import co.com.bancolombia.model.loanwithrate.LoanWithRate;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -13,4 +14,5 @@ public interface LoanApplicationRepository {
     Flux<LoanApplication> findByStatusIdAndEmail(Integer statusId, String email);
     Mono<LoanApplication> update(LoanApplication loanApplication);
     Mono<LoanApplication> findById(Integer id);
+    Flux<LoanWithRate> findLoansWithRateByStatus(String email, Integer statusId);
 }

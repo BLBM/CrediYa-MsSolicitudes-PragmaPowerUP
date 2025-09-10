@@ -8,8 +8,7 @@ public enum QueueAliasConstants {
 
 
     LOAN_APPLICATION_EVENT("loanApplicationQueue"),
-    AUTOMATIC_VALIDATE_EVENT("loan-application-events");
-
+    AUTOMATIC_VALIDATE_EVENT("loanValidateQueue");
     private final String message;
 
     QueueAliasConstants(String message) {

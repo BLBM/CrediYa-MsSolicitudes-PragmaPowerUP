@@ -10,11 +10,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class LoanTypeReactiveRepositoryAdapter extends ReactiveAdapterOperations<
-    LoanType/* change for domain model */,
-    LoanTypeEntity/* change for adapter model */,
-    Integer,
-    LoanTypeReactiveRepository
-> implements LoanTypeRepository {
+        LoanType/* change for domain model */,
+        LoanTypeEntity/* change for adapter model */,
+        Integer,
+        LoanTypeReactiveRepository
+        > implements LoanTypeRepository {
     public LoanTypeReactiveRepositoryAdapter(LoanTypeReactiveRepository repository, ObjectMapper mapper) {
         super(repository, mapper, d -> mapper.map(d, LoanType.class/* change for domain model */));
     }

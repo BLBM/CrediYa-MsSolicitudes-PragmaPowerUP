@@ -4,11 +4,11 @@ package co.com.bancolombia.r2dbc.loan_application_repository;
 import co.com.bancolombia.logconstants.LogConstants;
 import co.com.bancolombia.model.loan_application.LoanApplication;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
-import co.com.bancolombia.model.loan_type.LoanType;
-import co.com.bancolombia.model.status.Status;
+import co.com.bancolombia.model.loanwithrate.LoanWithRate;
 import co.com.bancolombia.r2dbc.entity.LoanApplicationEntity;
 import co.com.bancolombia.r2dbc.helper.ReactiveAdapterOperations;
 import co.com.bancolombia.r2dbc.mapper.LoanApplicationMapper;
+import co.com.bancolombia.r2dbc.mapper.LoanWithRateMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivecommons.utils.ObjectMapper;
 import org.springframework.stereotype.Repository;
@@ -27,15 +27,19 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
 
     private final TransactionalOperator txOperator;
     private final LoanApplicationMapper loanApplicationMapper;
+    private final LoanWithRateMapper loanWithRateMapper;
 
     public LoanAplicationReactiveRepositoryAdapter(
             LoanAplicationReactiveRepository repository,
             ObjectMapper mapper,
             TransactionalOperator txOperator,
-            LoanApplicationMapper loanApplicationMapper) {
+            LoanApplicationMapper loanApplicationMapper,
+            LoanWithRateMapper loanWithRateMapper
+            ) {
         super(repository, mapper, loanApplicationMapper::toDomain);
         this.txOperator = txOperator;
         this.loanApplicationMapper = loanApplicationMapper;
+        this.loanWithRateMapper = loanWithRateMapper;
     }
 
     @Override
@@ -89,6 +93,14 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
     public Mono<LoanApplication> findById(Integer loanApplicationId) {
         return repository.findById(loanApplicationId)
                 .map(this::toEntity);
+    }
+
+
+    @Override
+    public Flux<LoanWithRate> findLoansWithRateByStatus(String email, Integer statusId) {
+        return repository.findLoansWithRateByStatusAndEmail(statusId, email)
+                .map(loanWithRateMapper::toDomain);
+
     }
 
 

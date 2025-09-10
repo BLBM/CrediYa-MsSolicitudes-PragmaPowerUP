@@ -17,4 +17,10 @@ public class LoanCalculationService {
         return monthlyInterest + amortization;
     }
 
+
+    public Integer calculateMonthsBetween(LocalDate startDate, LocalDate endDate) {
+        return (endDate.getYear() - startDate.getYear()) * 12
+                + (endDate.getMonthValue() - startDate.getMonthValue());
+    }
+
 }

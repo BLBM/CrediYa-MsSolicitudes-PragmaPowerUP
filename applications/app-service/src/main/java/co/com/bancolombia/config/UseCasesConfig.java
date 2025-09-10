@@ -27,14 +27,18 @@ public class UseCasesConfig {
             LoanApplicationRepository loanApplicationRepository,
             LoanTypeStatus loanTypeStatus,
             LoanApplicationValidator loanApplicationValidator,
-            UserRepository userRepository
+            UserRepository userRepository,
+            LoanApplicationEventRepository loanApplicationEventRepository,
+            LoanCalculationService loanCalculationService
 
     ) {
         return new CreatedLoanApplicationUseCase(
                 loanApplicationRepository,
                 loanTypeStatus,
                 loanApplicationValidator,
-                userRepository
+                userRepository,
+                loanCalculationService,
+                loanApplicationEventRepository
         );
     }
 

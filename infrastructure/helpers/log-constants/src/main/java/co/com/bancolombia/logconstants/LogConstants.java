@@ -47,6 +47,17 @@ public interface LogConstants {
     String ERROR_MS_AUTHENTICATION = "Error in the ms of authentication: {}";
 
 
+    // SQS LOG SENDER
+    String SUCCESSFUL_SEND_EVENT= "Message sent to {} with id={}";
+    String SUCCESSFUL_VALIDATE_EVENT="Event published in queue  loan-validate-event to {} with id {}";
+    String SUCCESSFUL_LOAN_APPLICATION_EVENT="Event published in queue loan-application-events to {} with id {}";
+
+    //SQS LISTENER LOG
+
+    String RECEIVE_MESSAGE_SQS = "Received UpdateLoanResponseDTO : {}";
+    String SUCCESSFUL_UPDATE_LOAN = "Loan {} updated to status {}";
+    String ERROR_UPDATE_LOAN = "Error updating loan {}: {}";
+
 
 
 

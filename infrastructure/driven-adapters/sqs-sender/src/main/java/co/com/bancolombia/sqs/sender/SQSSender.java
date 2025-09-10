@@ -1,7 +1,9 @@
 package co.com.bancolombia.sqs.sender;
 
+import co.com.bancolombia.logconstants.LogConstants;
 import co.com.bancolombia.model.loan_application_event.LoanApplicationEvent;
 import co.com.bancolombia.model.loan_application_event.gateways.LoanApplicationEventRepository;
+import co.com.bancolombia.model.loan_validation_message.LoanValidationMessage;
 import co.com.bancolombia.sqs.sender.common.QueueAliasConstants;
 import co.com.bancolombia.sqs.sender.config.SQSSenderProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,6 +14,8 @@ import reactor.core.publisher.Mono;
 import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
 import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
+
+import java.time.LocalDate;
 
 @Service
 @Log4j2
@@ -24,7 +28,7 @@ public class SQSSender implements LoanApplicationEventRepository {
     public Mono<String> send(String message, String queueAlias) {
         return Mono.fromCallable(() -> buildRequest(message, queueAlias))
                 .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
-                .doOnNext(response -> log.debug("Message sent to {} with id={}", queueAlias, response.messageId()))
+                .doOnNext(response -> log.debug(LogConstants.SUCCESSFUL_SEND_EVENT, queueAlias, response.messageId()))
                 .map(SendMessageResponse::messageId);
     }
 
@@ -40,13 +44,25 @@ public class SQSSender implements LoanApplicationEventRepository {
     }
 
     @Override
-    public Mono<Void> publish(LoanApplicationEvent event) {
+    public Mono<Void> notify(LoanApplicationEvent event) {
         String queueAlias = QueueAliasConstants.LOAN_APPLICATION_EVENT.getMessage();
 
         return Mono.fromCallable(() -> objectMapper.writeValueAsString(event))
                 .map(body -> buildRequest(body, queueAlias))
                 .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
-                .doOnNext(response -> log.info("Event published to {} with id {}", queueAlias, response.messageId()))
+                .doOnNext(response -> log.info(LogConstants.SUCCESSFUL_LOAN_APPLICATION_EVENT, queueAlias, response.messageId()))
+                .then();
+    }
+
+    @Override
+    public Mono<Void> validate(LoanValidationMessage event) {
+        log.info("Validating loan application event: {}", event);
+        String queueValidateAlias = QueueAliasConstants.AUTOMATIC_VALIDATE_EVENT.getMessage();
+
+        return Mono.fromCallable(()-> objectMapper.writeValueAsString(event))
+                .map(body -> buildRequest(body,queueValidateAlias))
+                .flatMap(request -> Mono.fromFuture(client.sendMessage(request)))
+                .doOnNext(response -> log.info(LogConstants.SUCCESSFUL_VALIDATE_EVENT, queueValidateAlias, response.messageId()))
                 .then();
     }
 }

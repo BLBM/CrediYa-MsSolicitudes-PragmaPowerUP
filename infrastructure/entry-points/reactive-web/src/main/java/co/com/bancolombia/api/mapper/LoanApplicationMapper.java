@@ -15,6 +15,8 @@ public interface LoanApplicationMapper {
 
     @Mapping(target = "loanApplicationId", ignore = true)
     @Mapping(target = "status", ignore = true)
+    @Mapping(target = "email", ignore = true)
+    @Mapping(target = "documentId", ignore = true)
     @Mapping(target = "loanType", expression = "java(new LoanType(loanApplicationRequest.loanTypeId()))")
     LoanApplication toDomain(LoanApplicationRequest loanApplicationRequest);
 

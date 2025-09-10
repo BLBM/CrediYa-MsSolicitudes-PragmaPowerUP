@@ -9,6 +9,7 @@ import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessage
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.loan_application_summary.LoanApplicationSummary;
 import co.com.bancolombia.model.loan_type.LoanType;
+import co.com.bancolombia.model.loanwithrate.LoanWithRate;
 import co.com.bancolombia.model.status.Status;
 import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.UserRepository;
@@ -42,8 +43,8 @@ public class FindLoansByStatusUseCase {
                 loanApplication.getLoanType().getLoanTypeId());
         Mono<Status> statusMono = loanTypeStatus.findStatusById(
                 loanApplication.getStatus().getStatusId());
-        Flux<LoanApplication> loanAppsApproved = loanApplicationRepository.findByStatusIdAndEmail(
-                LoanApplicationConstants.APPROVED_STATUS, loanApplication.getEmail());
+        Flux<LoanWithRate> loanAppsApproved = loanApplicationRepository.findLoansWithRateByStatus(
+                loanApplication.getEmail(), LoanApplicationConstants.APPROVED_STATUS);
 
 
         return Mono.zip(userMono, loanTypeMono, statusMono,loanAppsApproved.collectList())
@@ -51,14 +52,14 @@ public class FindLoansByStatusUseCase {
                     User user = tuple.getT1();
                     LoanType loanType = tuple.getT2();
                     Status status = tuple.getT3();
-                    List<LoanApplication> loansApproved = tuple.getT4();
+                    List<LoanWithRate> loansApproved = tuple.getT4();
 
 
                     double totalDebt = loansApproved.stream()
                             .mapToDouble(loan -> loanCalculationService.calculateApproximateMonthlyDebt(
                                     loan.getAmount(),
-                                    loanType.getInterestRate(),
-                                    loan.getTimeLimit()
+                                    loan.getInterestrate(),
+                                    loan.getTimelimit()
                             ))
                             .sum();
 

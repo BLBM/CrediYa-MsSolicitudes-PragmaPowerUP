@@ -46,10 +46,21 @@ public class UpdateLoanStatusUseCase {
                                                         updated.getAmount()
                                                 );
 
-                                                return loanApplicationEventRepository.publish(event)
+                                                return loanApplicationEventRepository.notify(event)
                                                         .thenReturn(updated);
                                             });
                                 })
+                );
+    }
+
+    public Mono<LoanApplication> updateLambdaLoanStatus(Integer loanApplicationId, Integer statusId) {
+        return loanApplicationRepository.findById(loanApplicationId)
+                .switchIfEmpty(Mono.error(new DomainException(LoanApplicationMessages.LOAN_APPLICATION_NO_EXIST)))
+                .flatMap(loanApplication -> loanTypeStatus.findStatusById(statusId)
+                        .flatMap(status -> {
+                            loanApplication.setStatus(status);
+                            return loanApplicationRepository.update(loanApplication);
+                        })
                 );
     }
 
