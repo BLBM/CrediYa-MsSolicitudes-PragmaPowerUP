@@ -31,12 +31,12 @@ public class FindLoansByStatusUseCase {
     private final LoanTypeStatus loanTypeStatus;
 
 
-    public Flux<LoanApplicationSummary> execute(int status) {
+    public Flux<LoanApplicationSummary> execute(Integer status) {
         return loanApplicationRepository.findByStatusId(status)
                 .flatMap(this::buildSummary, 10);
     }
 
-    private Mono<LoanApplicationSummary> buildSummary(LoanApplication loanApplication) {
+     protected Mono<LoanApplicationSummary> buildSummary(LoanApplication loanApplication) {
         Mono<User> userMono = userRepository.findByEmail(loanApplication.getEmail())
                 .switchIfEmpty(Mono.error(new DomainException(LoanApplicationMessages.USER_NO_EXIST)));
         Mono<LoanType> loanTypeMono = loanTypeStatus.findLoanTypeById(

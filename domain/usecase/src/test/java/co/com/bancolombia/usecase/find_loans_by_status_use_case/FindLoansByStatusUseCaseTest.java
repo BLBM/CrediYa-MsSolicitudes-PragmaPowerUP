@@ -1,4 +1,4 @@
-package co.com.bancolombia.usecase.find_loans_by_status_usecase_test;
+package co.com.bancolombia.usecase.find_loans_by_status_use_case;
 
 import co.com.bancolombia.model.exception.DomainException;
 import co.com.bancolombia.model.loan_application.LoanApplication;
@@ -6,10 +6,10 @@ import co.com.bancolombia.model.loan_application.gateways.LoanApplicationConstan
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationMessages;
 import co.com.bancolombia.model.loan_application.gateways.LoanApplicationRepository;
 import co.com.bancolombia.model.loan_type.LoanType;
+import co.com.bancolombia.model.loanwithrate.LoanWithRate;
 import co.com.bancolombia.model.status.Status;
 import co.com.bancolombia.model.user.User;
 import co.com.bancolombia.model.user.gateways.UserRepository;
-import co.com.bancolombia.usecase.find_loans_by_status_use_case.FindLoansByStatusUseCase;
 import co.com.bancolombia.usecase.loan_type_status.LoanTypeStatus;
 import co.com.bancolombia.usecase.util.LoanCalculationService;
 import org.junit.jupiter.api.Test;
@@ -48,8 +48,7 @@ class FindLoansByStatusUseCaseTest {
 
 
     @Test
-    void shouldReturnLoanApplicationSummarySuccessfully() {
-
+    void shouldReturnLoanApplicationSummaryWithTotalDebt() {
         LocalDate currentDate = LocalDate.now();
 
         LoanApplication loanApplication = new LoanApplication();
@@ -72,19 +71,18 @@ class FindLoansByStatusUseCaseTest {
         Status status = new Status(1);
         status.setDescription("APPROVED");
 
-        when(loanApplicationRepository.findByStatusId(1))
-                .thenReturn(Flux.just(loanApplication));
-        when(userRepository.findByEmail("test@email.com"))
-                .thenReturn(Mono.just(user));
-        when(loanTypeStatus.findLoanTypeById(1))
-                .thenReturn(Mono.just(loanType));
-        when(loanTypeStatus.findStatusById(1))
-                .thenReturn(Mono.just(status));
-        when(loanApplicationRepository.findByStatusIdAndEmail(
-                LoanApplicationConstants.APPROVED_STATUS, loanApplication.getEmail()))
-                .thenReturn(Flux.empty());
+        LoanWithRate loan1 = new LoanWithRate(1, 1000.0, currentDate.plusMonths(12), 10.0);
+        LoanWithRate loan2 = new LoanWithRate(2, 2000.0, currentDate.plusMonths(24), 8.0);
 
-        StepVerifier.create(useCase.execute(1))
+        when(userRepository.findByEmail("test@email.com")).thenReturn(Mono.just(user));
+        when(loanTypeStatus.findLoanTypeById(1)).thenReturn(Mono.just(loanType));
+        when(loanTypeStatus.findStatusById(1)).thenReturn(Mono.just(status));
+        when(loanApplicationRepository.findLoansWithRateByStatus("test@email.com",
+                LoanApplicationConstants.APPROVED_STATUS)).thenReturn(Flux.just(loan1, loan2));
+        when(loanCalculationService.calculateApproximateMonthlyDebt(1000.0, 10.0, loan1.getTimelimit())).thenReturn(100.0);
+        when(loanCalculationService.calculateApproximateMonthlyDebt(2000.0, 8.0, loan2.getTimelimit())).thenReturn(200.0);
+
+        StepVerifier.create(useCase.buildSummary(loanApplication))
                 .assertNext(summary -> {
                     assertEquals(5000.0, summary.getAmount());
                     assertEquals(currentDate, summary.getTimeLimit());
@@ -94,38 +92,27 @@ class FindLoansByStatusUseCaseTest {
                     assertEquals("John Doe", summary.getName());
                     assertEquals(2000.0, summary.getBaseSalary());
                     assertEquals("test@email.com", summary.getEmail());
-                    assertEquals(0.0, summary.getTotalDebt());
+                    assertEquals(300.0, summary.getTotalDebt());
                 })
                 .verifyComplete();
 
-        verify(loanApplicationRepository).findByStatusId(1);
-        verify(loanApplicationRepository).findByStatusIdAndEmail(
-                LoanApplicationConstants.APPROVED_STATUS, loanApplication.getEmail());
-        verify(userRepository).findByEmail("test@email.com");
-        verify(loanTypeStatus).findLoanTypeById(1);
-        verify(loanTypeStatus).findStatusById(1);
+        verify(loanCalculationService).calculateApproximateMonthlyDebt(1000.0, 10.0, loan1.getTimelimit());
+        verify(loanCalculationService).calculateApproximateMonthlyDebt(2000.0, 8.0, loan2.getTimelimit());
     }
 
-
     @Test
-    void shouldFailWhenUserNotFound() {
+    void shouldFailBuildSummaryWhenUserNotFound() {
         LoanApplication loanApplication = new LoanApplication();
         loanApplication.setEmail("ghost@email.com");
         loanApplication.setLoanType(new LoanType(1));
         loanApplication.setStatus(new Status(1));
 
-        when(loanApplicationRepository.findByStatusId(1))
-                .thenReturn(Flux.just(loanApplication));
-        when(userRepository.findByEmail("ghost@email.com"))
-                .thenReturn(Mono.empty());
-        when(loanTypeStatus.findLoanTypeById(1))
-                .thenReturn(Mono.just(new LoanType(1)));
-        when(loanTypeStatus.findStatusById(1))
-                .thenReturn(Mono.just(new Status(1)));
-        when(loanApplicationRepository.findByStatusIdAndEmail(anyInt(), anyString()))
-                .thenReturn(Flux.empty());
+        when(userRepository.findByEmail("ghost@email.com")).thenReturn(Mono.empty());
+        when(loanTypeStatus.findLoanTypeById(1)).thenReturn(Mono.just(new LoanType(1)));
+        when(loanTypeStatus.findStatusById(1)).thenReturn(Mono.just(new Status(1)));
+        when(loanApplicationRepository.findLoansWithRateByStatus(anyString(), anyInt())).thenReturn(Flux.empty());
 
-        StepVerifier.create(useCase.execute(1))
+        StepVerifier.create(useCase.buildSummary(loanApplication))
                 .expectErrorSatisfies(error -> {
                     assertTrue(error instanceof DomainException);
                     assertEquals(LoanApplicationMessages.USER_NO_EXIST, error.getMessage());
@@ -134,7 +121,7 @@ class FindLoansByStatusUseCaseTest {
     }
 
     @Test
-    void shouldFailWhenLoanTypeNotFound() {
+    void shouldFailBuildSummaryWhenLoanTypeNotFound() {
         LoanApplication loanApplication = new LoanApplication();
         loanApplication.setEmail("loan@email.com");
         loanApplication.setLoanType(new LoanType(99));
@@ -143,25 +130,18 @@ class FindLoansByStatusUseCaseTest {
         User user = new User();
         user.setEmail("loan@email.com");
 
-        when(loanApplicationRepository.findByStatusId(1))
-                .thenReturn(Flux.just(loanApplication));
-        when(userRepository.findByEmail("loan@email.com"))
-                .thenReturn(Mono.just(user));
-        when(loanTypeStatus.findLoanTypeById(99))
-                .thenReturn(Mono.error(new DomainException(LoanApplicationMessages.LOAN_TYPE_NO_EXIST)));
-        when(loanTypeStatus.findStatusById(any()))
-                .thenReturn(Mono.just(new Status(1)));
+        when(userRepository.findByEmail("loan@email.com")).thenReturn(Mono.just(user));
+        when(loanTypeStatus.findLoanTypeById(99)).thenReturn(Mono.error(new DomainException(LoanApplicationMessages.LOAN_TYPE_NO_EXIST)));
+        when(loanTypeStatus.findStatusById(any())).thenReturn(Mono.just(new Status(1)));
+        when(loanApplicationRepository.findLoansWithRateByStatus(anyString(), anyInt())).thenReturn(Flux.empty());
 
-        when(loanApplicationRepository.findByStatusIdAndEmail(anyInt(), anyString()))
-                .thenReturn(Flux.empty());
-
-        StepVerifier.create(useCase.execute(1))
+        StepVerifier.create(useCase.buildSummary(loanApplication))
                 .expectError(DomainException.class)
                 .verify();
     }
 
     @Test
-    void shouldFailWhenStatusNotFound() {
+    void shouldFailBuildSummaryWhenStatusNotFound() {
         LoanApplication loanApplication = new LoanApplication();
         loanApplication.setEmail("loan@email.com");
         loanApplication.setLoanType(new LoanType(1));
@@ -172,16 +152,12 @@ class FindLoansByStatusUseCaseTest {
 
         LoanType loanType = new LoanType(1);
 
-        when(loanApplicationRepository.findByStatusId(1)).thenReturn(Flux.just(loanApplication));
         when(userRepository.findByEmail("loan@email.com")).thenReturn(Mono.just(user));
         when(loanTypeStatus.findLoanTypeById(1)).thenReturn(Mono.just(loanType));
-        when(loanTypeStatus.findStatusById(99))
-                .thenReturn(Mono.error(new DomainException(LoanApplicationMessages.STATUS_NO_VALID)));
+        when(loanTypeStatus.findStatusById(99)).thenReturn(Mono.error(new DomainException(LoanApplicationMessages.STATUS_NO_VALID)));
+        when(loanApplicationRepository.findLoansWithRateByStatus(anyString(), anyInt())).thenReturn(Flux.empty());
 
-        when(loanApplicationRepository.findByStatusIdAndEmail(anyInt(), anyString()))
-                .thenReturn(Flux.empty());
-
-        StepVerifier.create(useCase.execute(1))
+        StepVerifier.create(useCase.buildSummary(loanApplication))
                 .expectError(DomainException.class)
                 .verify();
     }

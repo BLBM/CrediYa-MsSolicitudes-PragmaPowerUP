@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -51,7 +52,7 @@ class UpdateLoanStatusUseCaseTest {
         when(loanTypeStatus.findLoanTypeById(10)).thenReturn(Mono.just(newLoanType));
         when(loanTypeStatus.findStatusById(2)).thenReturn(Mono.just(newStatus));
         when(loanApplicationRepository.update(any())).thenAnswer(invocation -> Mono.just(invocation.getArgument(0)));
-        when(loanApplicationEventRepository.publish(any())).thenReturn(Mono.empty());
+        when(loanApplicationEventRepository.notify(any())).thenReturn(Mono.empty());
 
         StepVerifier.create(useCase.updateLoanStatus(1, 2))
                 .expectNextMatches(updated ->
@@ -64,7 +65,7 @@ class UpdateLoanStatusUseCaseTest {
         verify(loanTypeStatus).findLoanTypeById(10);
         verify(loanTypeStatus).findStatusById(2);
         verify(loanApplicationRepository).update(any());
-        verify(loanApplicationEventRepository).publish(any());
+        verify(loanApplicationEventRepository).notify(any());
     }
 
     @Test
@@ -82,4 +83,67 @@ class UpdateLoanStatusUseCaseTest {
         verify(loanApplicationRepository).findById(1);
         verifyNoMoreInteractions(loanTypeStatus, loanApplicationRepository, loanApplicationEventRepository);
     }
+
+
+
+    @Test
+    void updateLambdaLoanStatus_shouldUpdateSuccessfully() {
+        Integer loanId = 1;
+        Integer statusId = 2;
+
+        LoanApplication loan = new LoanApplication();
+        Status status = new Status(statusId);
+
+        when(loanApplicationRepository.findById(loanId)).thenReturn(Mono.just(loan));
+        when(loanTypeStatus.findStatusById(statusId)).thenReturn(Mono.just(status));
+        when(loanApplicationRepository.update(loan)).thenReturn(Mono.just(loan));
+
+        StepVerifier.create(useCase.updateLambdaLoanStatus(loanId, statusId))
+                .assertNext(updated -> {
+                    assertEquals(status, updated.getStatus());
+                })
+                .verifyComplete();
+
+        verify(loanApplicationRepository).findById(loanId);
+        verify(loanTypeStatus).findStatusById(statusId);
+        verify(loanApplicationRepository).update(loan);
+    }
+
+    @Test
+    void updateLambdaLoanStatus_shouldFailWhenLoanNotFound() {
+        Integer loanId = 1;
+        Integer statusId = 2;
+
+        when(loanApplicationRepository.findById(loanId)).thenReturn(Mono.empty());
+
+        StepVerifier.create(useCase.updateLambdaLoanStatus(loanId, statusId))
+                .expectErrorMatches(ex -> ex instanceof DomainException &&
+                        ex.getMessage().equals(LoanApplicationMessages.LOAN_APPLICATION_NO_EXIST))
+                .verify();
+
+        verify(loanApplicationRepository).findById(loanId);
+        verifyNoInteractions(loanTypeStatus);
+        verify(loanApplicationRepository, never()).update(any());
+    }
+
+    @Test
+    void updateLambdaLoanStatus_shouldFailWhenStatusNotFound() {
+        Integer loanId = 1;
+        Integer statusId = 2;
+
+        LoanApplication loan = new LoanApplication();
+
+        when(loanApplicationRepository.findById(loanId)).thenReturn(Mono.just(loan));
+        when(loanTypeStatus.findStatusById(statusId)).thenReturn(Mono.error(new DomainException("Status not found")));
+
+        StepVerifier.create(useCase.updateLambdaLoanStatus(loanId, statusId))
+                .expectErrorMatches(ex -> ex instanceof DomainException &&
+                        ex.getMessage().equals("Status not found"))
+                .verify();
+
+        verify(loanApplicationRepository).findById(loanId);
+        verify(loanTypeStatus).findStatusById(statusId);
+        verify(loanApplicationRepository, never()).update(any());
+    }
+
 }

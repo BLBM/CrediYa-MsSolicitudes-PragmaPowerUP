@@ -52,4 +52,34 @@ class LoanCalculationsServiceTest {
 
         assertEquals(expected, result, 0.001);
     }
+
+    @Test
+    void calculateMonthsBetween_sameMonth_shouldReturnZero() {
+        LocalDate start = LocalDate.of(2025, 9, 1);
+        LocalDate end = LocalDate.of(2025, 9, 30);
+
+        int months = loanCalculationService.calculateMonthsBetween(start, end);
+
+        assertEquals(0, months);
+    }
+
+    @Test
+    void calculateMonthsBetween_nextMonthSameYear_shouldReturnOne() {
+        LocalDate start = LocalDate.of(2025, 9, 10);
+        LocalDate end = LocalDate.of(2025, 10, 5);
+
+        int months = loanCalculationService.calculateMonthsBetween(start, end);
+
+        assertEquals(1, months);
+    }
+
+    @Test
+    void calculateMonthsBetween_multipleMonthsSameYear_shouldReturnCorrect() {
+        LocalDate start = LocalDate.of(2025, 1, 1);
+        LocalDate end = LocalDate.of(2025, 6, 15);
+
+        int months = loanCalculationService.calculateMonthsBetween(start, end);
+
+        assertEquals(5, months);
+    }
 }

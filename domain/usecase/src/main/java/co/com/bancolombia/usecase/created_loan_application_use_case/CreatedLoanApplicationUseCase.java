@@ -68,7 +68,7 @@ public class CreatedLoanApplicationUseCase {
     }
 
 
-    private Mono<Double> calculateTotalDebt(String email) {
+      Mono<Double> calculateTotalDebt(String email) {
         return loanApplicationRepository.findLoansWithRateByStatus(
                         email,
                         LoanApplicationConstants.APPROVED_STATUS
@@ -83,7 +83,7 @@ public class CreatedLoanApplicationUseCase {
     }
 
 
-    private Mono<Void> handleAutomaticValidation(LoanApplication loanApplication,
+      Mono<Void> handleAutomaticValidation(LoanApplication loanApplication,
                                                  User user,
                                                  LoanType loanType,
                                                  Status status) {

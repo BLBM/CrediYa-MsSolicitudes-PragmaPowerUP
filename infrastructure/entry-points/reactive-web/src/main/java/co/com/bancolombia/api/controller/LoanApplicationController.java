@@ -10,6 +10,7 @@ import co.com.bancolombia.api.dto.loan_application_dto.LoanApplicationResponse;
 import co.com.bancolombia.api.mapper.LoanApplicationMapper;
 import co.com.bancolombia.api.service.LoanApplicationPageableService;
 import co.com.bancolombia.logconstants.LogConstants;
+import co.com.bancolombia.model.loan_application.gateways.LoanApplicationConstants;
 import co.com.bancolombia.usecase.created_loan_application_use_case.CreatedLoanApplicationUseCase;
 import co.com.bancolombia.usecase.update_loan_status_use_case.UpdateLoanStatusUseCase;
 import io.swagger.v3.oas.annotations.Operation;
@@ -51,9 +52,9 @@ public class LoanApplicationController {
     @Operation(summary = SwaggerConstant.SUMMARY_LOAN_APPLICATION_LIST)
     @PreAuthorize("hasAnyRole('ADVISER')")
     public Mono<PageResponse<LoanApplicationSummaryResponse>> findLoanApplicationByStatus(
-            @RequestParam(name = "page", defaultValue = "0") int page,
-            @RequestParam(name = "size", defaultValue = "10") int size,
-            @RequestParam("status") int status) {
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "size", defaultValue = "3") int size,
+            @RequestParam(name = "status", defaultValue = "1") Integer status) {
 
         log.info(LogConstants.REQUEST_RECEIVED_LOANS_BY_STATUS, status);
         return pageableService.findByStatus(status, page, size);

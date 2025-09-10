@@ -88,7 +88,6 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
     }
 
 
-
     @Override
     public Mono<LoanApplication> findById(Integer loanApplicationId) {
         return repository.findById(loanApplicationId)
@@ -98,8 +97,11 @@ public class LoanAplicationReactiveRepositoryAdapter extends ReactiveAdapterOper
 
     @Override
     public Flux<LoanWithRate> findLoansWithRateByStatus(String email, Integer statusId) {
+        final String OPERATION = "findLoansWithRateByStatus";
         return repository.findLoansWithRateByStatusAndEmail(statusId, email)
-                .map(loanWithRateMapper::toDomain);
+                .map(loanWithRateMapper::toDomain)
+                .doOnComplete(() -> log.info("[{}] query end successful", OPERATION))
+                .doOnError(e -> log.error("[{}] error during query", OPERATION, e));
 
     }
 
