@@ -89,7 +89,6 @@ public class CreatedLoanApplicationUseCase {
                                                  Status status) {
 
         Integer timeLimitMonths =  loanCalculationService.calculateMonthsBetween(LocalDate.now(), loanApplication.getTimeLimit());
-
         return calculateTotalDebt(user.getEmail())
                 .flatMap(totalDebt -> {
                     LoanValidationMessage event = LoanValidationMessage.builder()

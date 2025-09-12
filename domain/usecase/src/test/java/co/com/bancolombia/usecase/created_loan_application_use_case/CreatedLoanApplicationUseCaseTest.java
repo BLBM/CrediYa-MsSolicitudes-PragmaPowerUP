@@ -94,7 +94,7 @@ import static org.mockito.Mockito.*;
      @Test
      void shouldTriggerAutomaticValidationWhenEnabled() {
          LoanApplication loanApplication = new LoanApplication();
-         loanApplication.setLoanType(new LoanType(1, "Personal",1000.00, 100000.00, 12.0 ,true )); // automaticValidation = true
+         loanApplication.setLoanType(new LoanType(1, "Personal",1000.00, 100000.00, 12.0 ,true ));
          loanApplication.setStatus(new Status(LoanApplicationConstants.INITIAL_STATUS));
          String email = "test@email.com";
 
@@ -219,7 +219,6 @@ import static org.mockito.Mockito.*;
 
      @Test
      void calculateTotalDebt_whenLoansExist_shouldReturnSum() {
-         // Arrange
          String email = "test@mail.com";
          LoanWithRate loan1 = new LoanWithRate(1, 1000.0, LocalDate.now().plusMonths(12), 10.0);
          LoanWithRate loan2 = new LoanWithRate(2, 2000.0, LocalDate.now().plusMonths(24), 8.0);
@@ -232,26 +231,21 @@ import static org.mockito.Mockito.*;
          when(loanCalculationService.calculateApproximateMonthlyDebt(2000.0, 8.0, loan2.getTimelimit()))
                  .thenReturn(200.0);
 
-         // Act
          Mono<Double> result = useCase.calculateTotalDebt(email);
 
-         // Assert
          StepVerifier.create(result)
-                 .expectNext(300.0) // 100 + 200
+                 .expectNext(300.0)
                  .verifyComplete();
      }
 
      @Test
      void calculateTotalDebt_whenNoLoans_shouldReturnZero() {
-         // Arrange
          String email = "empty@mail.com";
          when(loanApplicationRepository.findLoansWithRateByStatus(email, LoanApplicationConstants.APPROVED_STATUS))
                  .thenReturn(Flux.empty());
 
-         // Act
          Mono<Double> result = useCase.calculateTotalDebt(email);
 
-         // Assert
          StepVerifier.create(result)
                  .expectNext(0.0)
                  .verifyComplete();
