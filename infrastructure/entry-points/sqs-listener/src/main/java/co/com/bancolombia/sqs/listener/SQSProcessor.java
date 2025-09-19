@@ -23,22 +23,25 @@ public class SQSProcessor implements Function<Message, Mono<Void>> {
     @Override
     public Mono<Void> apply(Message message) {
 
-        try {
-            UpdateLoanResponseDTO updateLoanResponseDTO = objectMapper.readValue(message.body(),UpdateLoanResponseDTO.class);
-            log.info(LogConstants.RECEIVE_MESSAGE_SQS, updateLoanResponseDTO);
-            updateLoanStatusUseCase.updateLambdaLoanStatus(
-                    updateLoanResponseDTO.loanId(),
-                    updateLoanResponseDTO.statusId()
-            ).subscribe(
-                    updated -> log.info(LogConstants.SUCCESSFUL_UPDATE_LOAN, updateLoanResponseDTO.loanId(), updateLoanResponseDTO.statusId()),
-                    error -> log.error(LogConstants.ERROR_UPDATE_LOAN, updateLoanResponseDTO.loanId(), error.getMessage())
-            );
+        log.info("=== SQS MESSAGE RECEIVED ===");
+        log.info("Message ID: {}", message.messageId());
+        log.info("Message Body: {}", message.body());
+        log.info("Message Attributes: {}", message.messageAttributes());
+        log.info("===============================");
 
-        }catch (Exception e){
+        try {
+            UpdateLoanResponseDTO dto = objectMapper.readValue(message.body(), UpdateLoanResponseDTO.class);
+            log.info(LogConstants.RECEIVE_MESSAGE_SQS, dto);
+
+            return updateLoanStatusUseCase.updateLambdaLoanStatus(dto.loanId(), dto.statusId())
+                    .doOnSuccess(updated ->
+                            log.info(LogConstants.SUCCESSFUL_UPDATE_LOAN, dto.loanId(), dto.statusId()))
+                    .doOnError(error ->
+                            log.error(LogConstants.ERROR_UPDATE_LOAN, dto.loanId(), error.getMessage()))
+                    .then();
+        } catch (Exception e) {
             return Mono.error(e);
         }
-
-        return Mono.empty();
-
     }
+
 }

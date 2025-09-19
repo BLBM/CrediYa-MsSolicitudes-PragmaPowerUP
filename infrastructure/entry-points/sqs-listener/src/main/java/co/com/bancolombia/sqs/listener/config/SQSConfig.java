@@ -1,6 +1,8 @@
 package co.com.bancolombia.sqs.listener.config;
 
 import co.com.bancolombia.sqs.listener.helper.SQSListener;
+import jakarta.annotation.PreDestroy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
@@ -19,27 +21,47 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import java.net.URI;
 import java.util.function.Function;
 
+@Slf4j
 @Configuration
 public class SQSConfig {
 
+    private SqsAsyncClient sqsAsyncClient;
+    private SQSListener sqsListener;
+
     @Bean
     public SQSListener sqsListener(SqsAsyncClient client, SQSProperties properties, Function<Message, Mono<Void>> fn) {
-        return SQSListener.builder()
+
+        log.info("=== CREATING SQS LISTENER ===");
+        log.info("SQS Properties: {}", properties);
+        log.info("Queue URL: {}", properties.queueUrl());
+        log.info("Client: {}", client);
+        log.info("==============================");
+
+        this.sqsListener = SQSListener.builder()
                 .client(client)
                 .properties(properties)
                 .processor(fn)
                 .build()
                 .start();
+        return this.sqsListener;
     }
 
     @Bean
     public SqsAsyncClient configSqs(SQSProperties properties, MetricPublisher publisher) {
-        return SqsAsyncClient.builder()
+        this.sqsAsyncClient = SqsAsyncClient.builder()
                 .endpointOverride(resolveEndpoint(properties))
                 .region(Region.of(properties.region()))
                 .overrideConfiguration(o -> o.addMetricPublisher(publisher))
                 .credentialsProvider(getProviderChain())
                 .build();
+        return this.sqsAsyncClient;
+    }
+
+    @PreDestroy
+    public void closeResources() {
+        if (sqsAsyncClient != null) {
+            sqsAsyncClient.close();
+        }
     }
 
     private AwsCredentialsProviderChain getProviderChain() {

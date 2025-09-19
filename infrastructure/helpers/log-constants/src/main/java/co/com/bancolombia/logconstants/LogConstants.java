@@ -4,7 +4,7 @@ public interface LogConstants {
     //PROCESS
     String START_PROCESS = "Starting process";
     String END_PROCESS = "Ending process: {}";
-    String ERROR_PROCESS = "Error occurred in process";
+    String ERROR_PROCESS = "Error occurred in process {}";
     String SUCCESSFUL_APPLICATION = "Successful application: {}";
     String START_JJWT_PROCESS = "Starting JJWT  process";
     //CONTROLLERS

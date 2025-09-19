@@ -1,6 +1,10 @@
 package co.com.bancolombia.sqs.sender.config;
 
+
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProviderChain;
@@ -16,18 +20,23 @@ import software.amazon.awssdk.services.sqs.SqsAsyncClient;
 
 import java.net.URI;
 
+@Slf4j
 @Configuration
 @ConditionalOnMissingBean(SqsAsyncClient.class)
+@EnableConfigurationProperties(SQSSenderProperties.class)
 public class SQSSenderConfig {
 
     @Bean
     public SqsAsyncClient configSqs(SQSSenderProperties properties, MetricPublisher publisher) {
-        return SqsAsyncClient.builder()
+        SqsAsyncClient client = SqsAsyncClient.builder()
                 .endpointOverride(resolveEndpoint(properties))
                 .region(Region.of(properties.region()))
                 .overrideConfiguration(o -> o.addMetricPublisher(publisher))
                 .credentialsProvider(getProviderChain())
                 .build();
+
+        log.info("SQS Client created successfully");
+        return client;
     }
 
     private AwsCredentialsProviderChain getProviderChain() {

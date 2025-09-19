@@ -39,6 +39,8 @@ public class SQSListener {
                 .repeat();
     }
 
+
+
     private Flux<Void> listen() {
         return getMessages()
                 .flatMap(message -> processor.apply(message)

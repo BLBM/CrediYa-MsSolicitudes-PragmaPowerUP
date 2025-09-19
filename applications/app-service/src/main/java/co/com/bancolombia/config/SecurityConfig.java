@@ -1,7 +1,7 @@
 package co.com.bancolombia.config;
 
 import co.com.bancolombia.jwtimplementation.filter.JwtFilter;
-import co.com.bancolombia.jwtimplementation.security_context_repository.SecurityContextRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -13,19 +13,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authorization.HttpStatusServerAccessDeniedHandler;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
 
+@Slf4j
 @Configuration
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity
 public class SecurityConfig {
 
-    private final SecurityContextRepository securityContextRepository;
-
-
-    public SecurityConfig(SecurityContextRepository securityContextRepository) {
-        this.securityContextRepository = securityContextRepository;
-
-    }
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -36,11 +31,16 @@ public class SecurityConfig {
     public SecurityWebFilterChain filterChain(ServerHttpSecurity http, JwtFilter jwtFilter) {
         return http
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .authorizeExchange(exchange ->exchange
-                        .pathMatchers("/swagger-ui/**", "/v3/api-docs/**", "/webjars/**").permitAll()
+                .authorizeExchange(exchange -> exchange
+                        .pathMatchers("/api/v1/login").permitAll()
+                        .pathMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .pathMatchers("/v3/api-docs/**").permitAll()
+                        .pathMatchers("/webjars/**").permitAll()
+                        .pathMatchers("/actuator/**").permitAll()
+                        .pathMatchers("/favicon.ico").permitAll()
                         .anyExchange().authenticated())
-                .addFilterAt(jwtFilter, SecurityWebFiltersOrder.FIRST)
-                .securityContextRepository(securityContextRepository)
+                .addFilterBefore(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .httpBasic(ServerHttpSecurity.HttpBasicSpec::disable)
                 .formLogin(ServerHttpSecurity.FormLoginSpec::disable)
                 .logout(ServerHttpSecurity.LogoutSpec::disable)

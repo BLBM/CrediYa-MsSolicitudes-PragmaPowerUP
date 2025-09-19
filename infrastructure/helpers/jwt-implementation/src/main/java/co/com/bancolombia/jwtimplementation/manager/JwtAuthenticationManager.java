@@ -25,17 +25,18 @@ public class JwtAuthenticationManager implements ReactiveAuthenticationManager {
     }
 
     @Override
-    public Mono<Authentication> authenticate (Authentication authentication) {
+    public Mono<Authentication> authenticate(Authentication authentication) {
         log.info(JwtMessages.START_JJWT_PROCESS_AUTHENTICATE_MANAGER);
+
         return Mono.just(authentication)
-                .map(auth -> {
-                    if (auth.getCredentials() == null) {
-                            throw new JwtException(JwtMessages.TOKEN_NO_FOUNDS);
-                        }
-                            return jwtProvider.getClaims(auth.getCredentials().toString());
-                })
+                .filter(auth -> auth.getCredentials() != null)
+                .switchIfEmpty(Mono.empty())
+                .map(auth -> jwtProvider.getClaims(auth.getCredentials().toString()))
                 .log()
-                .onErrorResume(e-> Mono.error(new JwtException(JwtMessages.TOKEN_NO_FOUNDS)))
+                .onErrorResume(e -> {
+                    log.debug("JWT authentication failed: {}", e.getMessage());
+                    return Mono.empty();
+                })
                 .map(claims -> {
                     @SuppressWarnings("unchecked")
                     List<Map<String, Object>> rawRoles = claims.get("roles", List.class);

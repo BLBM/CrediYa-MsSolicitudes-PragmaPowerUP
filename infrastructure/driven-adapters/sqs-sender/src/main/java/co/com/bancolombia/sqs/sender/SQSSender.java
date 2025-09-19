@@ -33,10 +33,19 @@ public class SQSSender implements LoanApplicationEventRepository {
     }
 
     private SendMessageRequest buildRequest(String message, String queueAlias) {
+        log.info("=== SQS SENDER DEBUG ===");
+        log.info("Requested queue alias: {}", queueAlias);
+
+
         String queueUrl = properties.getQueueUrl(queueAlias);
+        log.info("Resolved queue URL for alias '{}': {}", queueAlias, queueUrl);
+
         if (queueUrl == null) {
+            log.error("ERROR: No queue configured for alias: {}", queueAlias);
             throw new IllegalArgumentException("No queue configured for alias: " + queueAlias);
         }
+
+        log.info("Building SendMessageRequest with URL: {}", queueUrl);
         return SendMessageRequest.builder()
                 .queueUrl(queueUrl)
                 .messageBody(message)

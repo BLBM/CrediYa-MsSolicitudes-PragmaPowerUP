@@ -3,7 +3,7 @@ package co.com.bancolombia.jwt_common;
 public interface JwtMessages{
     String TOKEN_NO_FOUNDS = "no token was found";
     String TOKEN_INVALID = "invalid token";
-
+    String TOKEN_INVALID_IN_VALIDATE = "invalid token in validate";
     String TOKEN_EXPIRED = "token expired";
     String TOKEN_UNSUPPORTED= "token unsupported";
     String TOKEN_MALFORMED = "token malformed";
